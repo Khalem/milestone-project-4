@@ -62,6 +62,13 @@ def log_in():
     else:
         return "Username/Password is incorrect"
 
+@app.route("/log_out")
+def log_out():
+    # Remove user from session
+    session.pop("username", None)
+    return redirect(url_for("index"))
+
+
 @app.route("/filter", methods=["POST", "GET"])
 def filter_home():
     """
@@ -104,6 +111,14 @@ def view_recipe(recipe_id):
     mongo.db.recipes.update({"_id": ObjectId(recipe_id)}, {"$set": {"views": new_views}})
     
     return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in)
+
+@app.route("/my_recipes")
+def my_recipes():
+    
+    recipes = mongo.db.recipes.find({"author": session["username"]})
+    count = recipes.count()
+    
+    return render_template("my-recipes.html", recipes = recipes, count = count)
 
 
 if __name__ == "__main__":
