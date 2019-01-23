@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ recipe.recipe_name }}</title>
+</head>
+<body>
+    <h1>{{ recipe.recipe_name }}</h1>
+    {% if recipe.tags != [] %}
+        {% for x in recipe.tags %}
+            <button>{{ x }}</button>
+        {% endfor %}
+    {% endif %}
+    {% if logged_in == True %}
+        <a href=""><button>Add to Cook Book</button></a>
+    {% endif %}
+    <p><strong>Description:</strong></p>
+    <p>{{ recipe.recipe_desc }}</p>
+    <p><strong>Country of Origin:</strong></p>
+    <p>{{ recipe.country_of_origin }}</p>
+    <p><strong>Allergens:</strong></p>
+    <ul>
+        {% for x in recipe.allergens %}
+            <li>{{ x }}</li>
+        {% endfor %}
+    </ul>
+    <p><strong>Ingredients</strong></p>
+    <ul>
+        {% for x in recipe.ingredients %}
+        <li>{{ x }}</li>
+        {% endfor %}
+    </ul>
+    <p><strong>Instructions</strong></p>
+    <ol>
+        {% for x in recipe.steps %}
+        <li>{{ x }}</li>
+        {% endfor %}
+    </ol>
+    
+</body>
+</html>

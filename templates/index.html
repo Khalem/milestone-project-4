@@ -288,13 +288,15 @@
         <!-- If the returned results is more than 0, display recipes. If not, return feedback telling user there was no results -->
         {% if count > 0 %}
             {% for recipe in recipes %}
-                <div class="card">
-                    <h3>{{ recipe.recipe_name }}</h3>
-                    <p>{{ recipe.recipe_desc }}</p>
-                    <p>{{ recipe.author }}</p>
-                    <p>{{ recipe.views }}</p>
-                    <p>{{ recipe.up_down_votes }}</p>
-                </div>
+                <a href="{{ url_for('view_recipe', recipe_id = recipe._id) }}" target="_blank">
+                    <div class="card">
+                        <h3>{{ recipe.recipe_name }}</h3>
+                        <p>{{ recipe.recipe_desc }}</p>
+                        <p>{{ recipe.author }}</p>
+                        <p>{{ recipe.views }}</p>
+                        <p>{{ recipe.up_down_votes }}</p>
+                    </div>
+                </a>
             {% endfor %}
         {% else %}
             <h2>Oops! Looks like there is no results for that search!</h2>
