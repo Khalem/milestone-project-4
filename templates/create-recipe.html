@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My Recipes</title>
+    <title>Create Recipe</title>
 </head>
 <body>
     
@@ -17,12 +17,11 @@
         </ul>
     </nav>
     
-    <h2>My Recipes</h2>
-    {% if count > 0 %}
-        <!-- User won't get the option to search unless the user has recipes -->
-        <form action="" method="POST">
-            <!-- Country select, A LOT of values, you've been warned -->
-            <select name="country_of_origin">
+    <h2>Create a Recipe</h2>
+    <form action="{{ url_for('insert_recipe') }}" method="POST">
+        <input type="text" name="recipe_name"/>
+        <textarea name="recipe_desc"></textarea>
+        <select name="country_of_origin">
                 <option disabled selected>Country of Origin</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
@@ -264,39 +263,68 @@
                 <option value="Zambia">Zambia</option>
                 <option value="Zimbabwe">Zimbabwe</option>
             </select>
-            <input type="text" name="recipe_name"/>
-            <select name="category">
-                <option disabled selected>Category</option>
-                <option>Baking</option>
-                <option>Cooking</option>
-            </select>
-            <select name="allergens">
+        <!-- Allergens select will give the user multiple options to choose. Will add with materialize -->
+        <select name="allergens">
                 <option disabled selected>Allergens</option>
+                <option value="Peanuts">Peanuts</option>
+        </select>
+        <div id="ingredients_fields">
+        <select id="number_of_ingredients" name="number_of_ingredients">
+            <option disabled selected>Number of Ingredients</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+    </select>
+        </div>
+        <div id="instructions_fields">
+            <select id="number_of_instructions" name="number_of_instructions">
+                <option disabled selected>Number of Instructions</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
             </select>
-            <select name="tags">
+        </div>
+        <!-- User can add their own category if they'd like -->
+        <input type="text" list="categories" name="category" />
+            <datalist id="categories">
+                {% for category in categories %}
+                  <option>{{ category.category_name }}</option>
+                {% endfor %}
+            </datalist>
+        <!-- Tags select will give the user multiple options to choose. Will add with materialize -->
+        <select name="tags">
                 <option disabled selected>Tags</option>
-            </select>
-            <button type="submit">Submit</button>
-        </form>
-        
-        <a href="{{ url_for('create_recipe') }}"><button>Add New</button></a>
-        
-        {% for recipe in recipes %}
-            <a href="{{ url_for('view_recipe', recipe_id = recipe._id) }}" target="_blank">
-                <div class="card">
-                    <h3>{{ recipe.recipe_name }}</h3>
-                    <p>{{ recipe.recipe_desc }}</p>
-                    <p>{{ recipe.author }}</p>
-                    <p>{{ recipe.views }}</p>
-                    <p>{{ recipe.up_down_votes }}</p>
-                    <a href=""><button>Edit</button></a>
-                    <a href=""><button>Delete</button></a>
-                </div>
-        {% endfor %}
-        </a>
-        <!-- If user has no recipes, this will prompt them to make one. -->
-    {% else %}
-        <h3>You have no recipes. <a href="{{ url_for('create_recipe') }}">Would you like to create one?</a></h3>
-    {% endif %}
+                <option value="gluten free">Gluten Free</option>
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
 </body>
 </html>

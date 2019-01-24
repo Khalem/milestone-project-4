@@ -14,7 +14,7 @@
                 <a href="{{ url_for('log_out') }}">Log Out</a>
                 <a href="{{ url_for('my_recipes') }}"><li>My Recipes</li></a>
                 <a href=""><li>Cook Book</li></a>
-                <a href=""><li>Create Recipe</li></a>
+                <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
             {% else %}
                 <a href=""><li>Log In</li></a>
             {% endif %}

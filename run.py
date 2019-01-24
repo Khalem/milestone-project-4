@@ -114,11 +114,57 @@ def view_recipe(recipe_id):
 
 @app.route("/my_recipes")
 def my_recipes():
-    
+    """
+        Users can view the recipes they've created through this function. 
+    """
     recipes = mongo.db.recipes.find({"author": session["username"]})
     count = recipes.count()
     
     return render_template("my-recipes.html", recipes = recipes, count = count)
+
+
+
+@app.route("/create_recipe")
+def create_recipe():
+    """
+        Users can create a recipe through this function.
+    """
+    return render_template("create-recipe.html", categories = mongo.db.categories.find())
+
+@app.route("/insert_recipe", methods=["POST"])
+def insert_recipe():
+    """
+        Because of the complexity of my html form, I cannot use to_dict(), I also need to add author, views and upvotes which could not have been done in the form.
+        To insert the list of ingredients / instructions, I needed to append them to a list. This is done with a loop. I have named the inputs with a loop in jQuery also.
+        
+        I will have to change the way allergens and tags are added to the database when I allow users to choose multiple options.
+    """
+    recipes = mongo.db.recipes
+    author = session["username"]
+    ingredients = []
+    instructions = []
+    find_category = mongo.db.categories.find({"category_name": request.form["category"]})
+    number_of_ingredients = int(request.form["number_of_ingredients"])
+    number_of_instructions = int(request.form["number_of_instructions"])
+    
+    # If user has decided to add their own category, I will check if it exists, then add to database.
+    if find_category.count() == 0:
+        mongo.db.categories.insert_one({"category_name": request.form["category"].lower().title()})
+   
+    for i in range(number_of_ingredients):
+        # First letter of each ingredient will be uppercase.
+        ingredients.append(request.form["ingredients[" + str(i) + "]"].lower().capitalize())
+    
+    for i in range(number_of_instructions):
+        instructions.append(request.form["instructions[" + str(i) + "]"].lower().capitalize())
+        
+    recipes.insert_one({"recipe_name": request.form["recipe_name"].lower().title(), "recipe_desc": request.form["recipe_desc"].lower().capitalize(), "ingredients": ingredients, 
+                        "country_of_origin": request.form["country_of_origin"].lower().title(), "allergens": [request.form["allergens"]], 
+                        "tags": [request.form["tags"].lower().title()], "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"]})
+                        
+    return redirect(url_for("my_recipes"))
+
+
 
 
 if __name__ == "__main__":
