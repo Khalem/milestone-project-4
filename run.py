@@ -139,34 +139,102 @@ def insert_recipe():
         
         I will have to change the way allergens and tags are added to the database when I allow users to choose multiple options.
     """
+    # Declaring variables
     recipes = mongo.db.recipes
     author = session["username"]
     ingredients = []
     instructions = []
+    
+    
+    # Get category object
     find_category = mongo.db.categories.find({"category_name": request.form["category"]})
+    # Get amount of ingredients
     number_of_ingredients = int(request.form["number_of_ingredients"])
+    # Get amount of instructions
     number_of_instructions = int(request.form["number_of_instructions"])
     
     # If user has decided to add their own category, I will check if it exists, then add to database.
     if find_category.count() == 0:
         mongo.db.categories.insert_one({"category_name": request.form["category"].lower().title()})
    
+   # Append ingredients to list
+    for i in range(number_of_ingredients):
+        # First letter of each ingredient will be uppercase.
+        ingredients.append(request.form["ingredients[" + str(i) + "]"].lower().capitalize())
+        
+    # Get amount of instructions
+    for i in range(number_of_instructions):
+        instructions.append(request.form["instructions[" + str(i) + "]"].lower().capitalize())
+        
+    recipes.insert_one({"recipe_name": request.form["recipe_name"].lower().title(), "recipe_desc": request.form["recipe_desc"].lower().capitalize(), "ingredients": ingredients,
+                        "instructions": instructions, "country_of_origin": request.form["country_of_origin"].lower().title(), "allergens": [request.form["allergens"]], 
+                        "tags": [request.form["tags"].lower().title()], "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"],
+                        "number_of_ingredients": number_of_ingredients, "number_of_instructions": number_of_instructions})
+                        
+    return redirect(url_for("my_recipes"))
+
+@app.route("/edit_recipe/<recipe_id>")
+def edit_recipe(recipe_id):
+    recipe = mongo.db.recipes.find_one({"_id": ObjectId(recipe_id)})
+    categories = mongo.db.categories.find()
+    
+    return render_template("edit-recipe.html", recipe = recipe, categories = categories)
+    
+@app.route("/update_recipe/<recipe_id>", methods=["POST"])
+def update_recipe(recipe_id):
+    """
+        This function works similar to insert_recipe() with copied lines of code. However I had to find the recipe views and upvotes to pass through with the update. Redirect
+        to my_recipes().
+    """
+    # Declaring variables to update.
+    recipes = mongo.db.recipes
+    recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
+    ingredients = []
+    instructions = []
+    views = recipe["views"]
+    upvotes = recipe["up_down_votes"]
+    
+    # Get category object
+    find_category = mongo.db.categories.find({"category_name": request.form["category"]})
+    # Get amount of ingredients
+    number_of_ingredients = int(request.form["number_of_ingredients"])
+    # Get amount of instructions
+    number_of_instructions = int(request.form["number_of_instructions"])
+    
+    # If user has decided to add their own category, I will check if it exists, then add to database.
+    if find_category.count() == 0:
+        mongo.db.categories.insert_one({"category_name": request.form["category"].lower().title()})
+   
+   # Append ingredients to list
     for i in range(number_of_ingredients):
         # First letter of each ingredient will be uppercase.
         ingredients.append(request.form["ingredients[" + str(i) + "]"].lower().capitalize())
     
+    # Append instructions to list
     for i in range(number_of_instructions):
         instructions.append(request.form["instructions[" + str(i) + "]"].lower().capitalize())
-        
-    recipes.insert_one({"recipe_name": request.form["recipe_name"].lower().title(), "recipe_desc": request.form["recipe_desc"].lower().capitalize(), "ingredients": ingredients, 
-                        "country_of_origin": request.form["country_of_origin"].lower().title(), "allergens": [request.form["allergens"]], 
-                        "tags": [request.form["tags"].lower().title()], "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"]})
+    
+    
+    recipes.update({"_id": ObjectId(recipe_id)},
+                    {
+                        "recipe_name": request.form["recipe_name"],
+                        "recipe_desc": request.form["recipe_desc"],
+                        "country_of_origin": request.form["country_of_origin"],
+                        "allergens": [request.form["allergens"]],
+                        "number_of_ingredients": request.form["number_of_ingredients"],
+                        "number_of_instructions": request.form["number_of_instructions"],
+                        "ingredients": ingredients,
+                        "instructions": instructions,
+                        "category": request.form["category"],
+                        "tags": [request.form["tags"]],
+                        "author": session["username"],
+                        "views": views,
+                        "up_down_votes": upvotes
                         
+                    })
+    
     return redirect(url_for("my_recipes"))
-
-
-
-
+    
 if __name__ == "__main__":
     app.secret_key = "$my$secret$key"
     app.run(host=os.environ.get("IP"),

@@ -1,3 +1,4 @@
+
 // This function will add new input fields depending on the amount of ingredients the user picks. If a user changes their mind, it will remove previous input fields.
 $("#number_of_ingredients").change(function() {
     $(".ingredients_remove").remove();
@@ -8,6 +9,7 @@ $("#number_of_ingredients").change(function() {
         $("#ingredients_fields").append("<input type='text' class='ingredients_remove' name='ingredients[" + i + "]'/>");
     }
 });
+
 // This function works the same as above, but for instructions.
 $("#number_of_instructions").change(function() {
     $(".instructions_remove").remove();
