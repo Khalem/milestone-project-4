@@ -1,14 +1,15 @@
 import os
-from flask import Flask, render_template, redirect, session, request, url_for
+from flask import Flask, render_template, redirect, session, request, url_for, Blueprint
 from flask_pymongo import PyMongo
+from flask_paginate import Pagination, get_page_parameter
 from bson.objectid import ObjectId
+import ast
 
 app = Flask(__name__)
 app.config["MONGO_DBNAME"] = "milestone-project-4"
-app.config["MONGO_URI"] = "mongodb://admin:cod4cmtmazza@ds161894.mlab.com:61894/milestone-project-4"
+app.config["MONGO_URI"] = "mongodb://admin:helloworld123@ds161894.mlab.com:61894/milestone-project-4"
 
 mongo = PyMongo(app)
-
 
 def check_for_input(value):
     # If there was no input, return all results within that key by checking it exists.
@@ -18,21 +19,55 @@ def check_for_input(value):
     else:
         return value
 
-@app.route("/")
-@app.route("/<new_recipes>")
-def index(new_recipes=None):
+def get_records(find_recipes, page_size, page_num):
+        """
+            This function will retrieve the correct recipes for pagination.
+        """
+        
+        # Calculate number of documents to skip
+        skips = page_size * (page_num - 1)
+
+        # Skip and limit
+        recipe = find_recipes.skip(skips).limit(page_size)
+
+        # Return documents
+        return [x for x in recipe]
+
+@app.route("/", methods=["POST", "GET"])
+def index():
+    """
+        Recipes will be decided on if the user has searched for something or not. If the user has searched for something, it will take the user input by first checking they entered a value for that field.
+        If not, I will just return all results by checking that it exists. The results will then be paginated using flask-paginate and get_records()
+    """
+    if request.method == "POST":
+        recipe_name = check_for_input(request.form["recipe_name"])
+        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+        category = check_for_input(request.form.get("category", False))
+        allergens = check_for_input(request.form.get("allergens", False))
+        tags = check_for_input(request.form.get("tags", False))
+
+        recipes = mongo.db.recipes.find({"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags} )
+    else:
+        recipes = mongo.db.recipes.find()
     
     logged_in = False
+    search = False
+    q = request.args.get('q')
+    if q:
+        search = True
     
     if "username" in session:
         logged_in = True
-    
-    # Query the database
-    recipes = mongo.db.recipes.find()
+
     # Get the amount of results
     count = recipes.count()
     
-    return render_template("index.html", logged_in = logged_in, recipes = recipes, new_recipes = new_recipes, count = count)
+    # Pagination using flask-paginate
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    
+    return render_template("index.html", logged_in = logged_in, recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination)
+
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -41,11 +76,12 @@ def register():
     """
     existing_user = mongo.db.user.find_one({"username": request.form["username"]})
     if existing_user is None:
-        mongo.db.user.insert({"username": request.form["username"], "password": request.form["password"], "favourites_id": [], "created_id": []})
+        mongo.db.user.insert({"username": request.form["username"], "password": request.form["password"], "cook_book": [], "up_voted": [], "down_voted": []})
         session["username"] = request.form["username"]
         return redirect(url_for("index"))
     else:
         return "Username already taken!"
+
 
 @app.route("/log_in", methods=["POST"])
 def log_in():
@@ -62,36 +98,12 @@ def log_in():
     else:
         return "Username/Password is incorrect"
 
+
 @app.route("/log_out")
 def log_out():
     # Remove user from session
     session.pop("username", None)
     return redirect(url_for("index"))
-
-
-@app.route("/filter", methods=["POST", "GET"])
-def filter_home():
-    """
-        To filter through results, I will first declare that not all fields are required. I will then pass the input to the check_for_input() function
-        There, it will find out if anything was filled in the fields. If the fields weren't filled in, I will just return all results within that key by checking it exists.
-    """
-    
-    # Check if user is logged in
-    logged_in = False
-    if "username" in session:
-        logged_in = True
-    
-    recipe_name = check_for_input(request.form["recipe_name"])
-    country_of_origin = check_for_input(request.form.get("country_of_origin", False))
-    category = check_for_input(request.form.get("category", False))
-    allergens = check_for_input(request.form.get("allergens", False))
-    tags = check_for_input(request.form.get("tags", False))
-    
-    # Query the database
-    recipes = mongo.db.recipes.find({"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags})
-    # Get the amount of results
-    count = recipes.count()
-    return render_template("index.html", recipes = recipes, logged_in = logged_in, count = count) 
 
 @app.route("/view_recipe/<recipe_id>")
 def view_recipe(recipe_id):
@@ -99,29 +111,66 @@ def view_recipe(recipe_id):
         This function will pass through the selected recipe. It will check if the user is logged in, icrease the views of the recipe and display the recipe.
     """
     
-    # Check if user is logged in - must pass through so the option to add to cook book will be hidden from users who aren't logged in
+    # Check if user is logged in - must pass through so the option to add to cook book will be hidden from users who aren't logged in, also check if user has recipe in cook book.
     logged_in = False
+    is_in = False
+    up_down_voted = ""
     if "username" in session:
         logged_in = True
-        
-    # The following lines of code will increase the views of the recipe and query the database. 
+        user = mongo.db.user.find_one({"username": session["username"]})
+    
+        if recipe_id in user["up_voted"]:
+            up_down_voted = "Up"
+        elif recipe_id in user["down_voted"]:
+            up_down_voted = "Down"
+    
+        # Check if user has recipe in cook book already. If they do a different button will apear for them to remove it.
+        cook_book = user["cook_book"]
+        if recipe_id in cook_book:
+            is_in = True
+    
+    # The following lines of code will increase the views of the recipe and update the database. 
     recipe = mongo.db.recipes.find_one({"_id": ObjectId(recipe_id)})
     new_views = recipe["views"]
     new_views = new_views + 1
+    
     mongo.db.recipes.update({"_id": ObjectId(recipe_id)}, {"$set": {"views": new_views}})
     
-    return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in)
+    return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in, is_in = is_in, up_down_voted = up_down_voted)
 
-@app.route("/my_recipes")
+
+@app.route("/my_recipes", methods=["POST", "GET"])
 def my_recipes():
     """
-        Users can view the recipes they've created through this function. 
+        Users can view the recipes they've created through this function. Like index(), my_recipes will too check if the user has searched for a recipe that they have created.
+        Done by adding the 'author' to the query.
     """
-    recipes = mongo.db.recipes.find({"author": session["username"]})
+    total_recipes = mongo.db.recipes.find({"author": session["username"]})
+    total = total_recipes.count()
+    
+    if request.method == "POST":
+        recipe_name = check_for_input(request.form["recipe_name"])
+        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+        category = check_for_input(request.form.get("category", False))
+        allergens = check_for_input(request.form.get("allergens", False))
+        tags = check_for_input(request.form.get("tags", False))
+
+        recipes = mongo.db.recipes.find({"author": session["username"], "recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags} )
+    else:
+        recipes = mongo.db.recipes.find({"author": session["username"]})
+    
+    search = False
+    q = request.args.get('q')
+    if q:
+        search = True
+    
     count = recipes.count()
     
-    return render_template("my-recipes.html", recipes = recipes, count = count)
-
+    # Pagination using flask-paginate
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    
+    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination)
 
 
 @app.route("/create_recipe")
@@ -130,6 +179,7 @@ def create_recipe():
         Users can create a recipe through this function.
     """
     return render_template("create-recipe.html", categories = mongo.db.categories.find())
+
 
 @app.route("/insert_recipe", methods=["POST"])
 def insert_recipe():
@@ -173,13 +223,15 @@ def insert_recipe():
                         
     return redirect(url_for("my_recipes"))
 
+
 @app.route("/edit_recipe/<recipe_id>")
 def edit_recipe(recipe_id):
     recipe = mongo.db.recipes.find_one({"_id": ObjectId(recipe_id)})
     categories = mongo.db.categories.find()
     
     return render_template("edit-recipe.html", recipe = recipe, categories = categories)
-    
+  
+  
 @app.route("/update_recipe/<recipe_id>", methods=["POST"])
 def update_recipe(recipe_id):
     """
@@ -234,7 +286,143 @@ def update_recipe(recipe_id):
                     })
     
     return redirect(url_for("my_recipes"))
+
+
+@app.route("/delete_recipe/<recipe_id>")
+def delete_recipe(recipe_id):
+    """
+        This function will remove recipe from database and redirect to my_recipes()
+    """
+    mongo.db.recipes.remove({"_id": ObjectId(recipe_id)})
+    return redirect(url_for("my_recipes"))
+
+
+@app.route("/add_cook_book/<recipe_id>")
+def add_cook_book(recipe_id):
+    user = mongo.db.user.find_one({"username": session["username"]})
+    user_id = user["_id"]
     
+    mongo.db.user.update_one({"_id": ObjectId(user_id)},
+                    {"$push":
+                {   
+                    "cook_book": recipe_id
+                }})
+    
+    return redirect(url_for("cook_book"))
+    
+
+@app.route("/cook_book", methods=["POST", "GET"])
+def cook_book(): 
+    """
+        Simliar to index and my_recipes, cook_book will too check if the user has searched for a recipe. Before I can filter through the recipes, I must add an ObjectId to all
+        values in cook_book[]. 
+    """
+    user = mongo.db.user.find_one({"username": session["username"]})
+    cook_book = user["cook_book"]
+    total = len(cook_book)
+    for i in range(len(cook_book)):
+        cook_book[i] = ObjectId(cook_book[i])
+
+    if request.method == "POST":
+        recipe_name = check_for_input(request.form["recipe_name"])
+        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+        category = check_for_input(request.form.get("category", False))
+        allergens = check_for_input(request.form.get("allergens", False))
+        tags = check_for_input(request.form.get("tags", False))
+
+        recipes = mongo.db.recipes.find({"_id": {"$in": cook_book}, "recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]} )
+    else:
+        recipes = mongo.db.recipes.find({"_id": {"$in": cook_book}})
+    
+    count = recipes.count()
+    
+    search = False
+    q = request.args.get('q')
+    if q:
+        search = True
+    
+    # Pagination using flask-paginate
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    
+    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), total = total, count = count, pagination = pagination)
+
+
+@app.route("/remove_cook_book/<recipe_id>")
+def remove_cook_book(recipe_id):
+    """
+        Allow user to remove recipe from cook book by using a mongodb command that will remove recipe_id from list. Redirect to cook_book()
+    """
+    mongo.db.user.update_one({"username": session["username"]},
+                         {"$pull":
+                             {
+                                 "cook_book": recipe_id
+                             }
+                         })
+    
+    return redirect(url_for("cook_book"))
+    
+
+@app.route("/up_voted/<recipe_id>")
+def up_voted(recipe_id):
+    """
+        This function will increase the up_down_votes by 1 while also adding recipe_id to the up_voted list, and removing it from the down_voted list incase the user previously
+        voted down on this recipe.
+    """
+    user = mongo.db.user.find_one({"username": session["username"]})
+    up_voted = user["up_voted"]
+    if recipe_id not in up_voted:
+        mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                {"$inc":
+                                    {
+                                        "up_down_votes": 1
+                                    }
+                                })
+    
+        mongo.db.user.update_one({"username": session["username"]},
+                                    {"$push":
+                                        {
+                                            "up_voted": recipe_id
+                                        },
+                                    "$pull":
+                                         {
+                                             "down_voted": recipe_id
+                                         }
+                                    }
+                                    )
+    
+    return redirect(url_for("view_recipe", recipe_id = recipe_id))
+
+@app.route("/down_voted/<recipe_id>")
+def down_voted(recipe_id):
+    """
+        This function works the same as up_voted() except it will decrease up_down_votes and adds recipe_id to down_voted, and removes it
+        from up_voted
+    """
+    user = mongo.db.user.find_one({"username": session["username"]})
+    down_voted = user["down_voted"]
+    if recipe_id not in down_voted:
+        mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                {"$inc":
+                                    {
+                                        "up_down_votes": -1
+                                    }
+                                })
+    
+        mongo.db.user.update_one({"username": session["username"]},
+                                    {"$push":
+                                        {
+                                            "down_voted": recipe_id
+                                        },
+                                    "$pull":
+                                         {
+                                             "up_voted": recipe_id
+                                         }
+                                    }
+                                    )
+    
+    return redirect(url_for("view_recipe", recipe_id = recipe_id))
+
 if __name__ == "__main__":
     app.secret_key = "$my$secret$key"
     app.run(host=os.environ.get("IP"),

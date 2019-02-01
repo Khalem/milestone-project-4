@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Easy Recipe</title>
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
 </head>
 <body>
     
@@ -13,7 +14,7 @@
             {% if logged_in == True %}
                 <a href="{{ url_for('log_out') }}">Log Out</a>
                 <a href="{{ url_for('my_recipes') }}"><li>My Recipes</li></a>
-                <a href=""><li>Cook Book</li></a>
+                <a href="{{ url_for('cook_book') }}"><li>Cook Book</li></a>
                 <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
             {% else %}
                 <a href=""><li>Log In</li></a>
@@ -27,20 +28,20 @@
     
     <h2>Sign Up</h2>
     <form action="{{ url_for('register') }}" method="POST">
-        <input type="text" name="username"/>
-        <input type="text" name="password"/>
+        <input type="text" name="username" required/>
+        <input type="text" name="password" required/>
         <button type="submit">Submit</button>
     </form>
     
     <h2>Log In</h2>
     <form action="{{ url_for('log_in') }}" method="POST">
-        <input type="text" name="username"/>
-        <input type="text" name="password"/>
+        <input type="text" name="username" required/>
+        <input type="text" name="password" required/>
         <button type="submit">Submit</button>
     </form>
     
     <h2>Check out what's hot, or search for a recipe!</h2>
-    <form action="{{ url_for('filter_home') }}" method="POST">
+    <form action="" method="POST">
         <!-- Country select, A LOT of valus, you've been warned -->
         <select name="country_of_origin">
             <option disabled selected>Country of Origin</option>
@@ -301,7 +302,10 @@
     
         <!-- If the returned results is more than 0, display recipes. If not, return feedback telling user there was no results -->
         {% if count > 0 %}
+            {{ pagination.info }}
+            {{ pagination.links }}
             {% for recipe in recipes %}
+                
                 <a href="{{ url_for('view_recipe', recipe_id = recipe._id) }}" target="_blank">
                     <div class="card">
                         <h3>{{ recipe.recipe_name }}</h3>
@@ -312,10 +316,10 @@
                     </div>
                 </a>
             {% endfor %}
+            {{ pagination.links }}
         {% else %}
             <h2>Oops! Looks like there is no results for that search!</h2>
         {% endif %}
 
-    
 </body>
 </html>

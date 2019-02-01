@@ -12,7 +12,7 @@
         <ul>
             <a href="{{ url_for('log_out') }}">Log Out</a>
             <a href="{{ url_for('my_recipes') }}"><li>My Recipes</li></a>
-            <a href=""><li>Cook Book</li></a>
+            <a href="{{ url_for('cook_book') }}"><li>Cook Book</li></a>
             <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
         </ul>
     </nav>
@@ -279,6 +279,8 @@
             <button type="submit">Submit</button>
         </form>
         
+        {{ pagination.info }}
+        {{ pagination.links }}
         <a href="{{ url_for('create_recipe') }}"><button>Add New</button></a>
         
         {% for recipe in recipes %}
@@ -290,7 +292,8 @@
                     <p>{{ recipe.views }}</p>
                     <p>{{ recipe.up_down_votes }}</p>
                     <a href="{{ url_for('edit_recipe', recipe_id = recipe._id) }}"><button>Edit</button></a>
-                    <a href=""><button>Delete</button></a>
+                    <!-- When clicked, user will delete recipe. Will add modal to confirm deletion with materialize -->
+                    <a href="{{ url_for('delete_recipe', recipe_id = recipe._id) }}"><button>Delete</button></a>
                 </div>
         {% endfor %}
         </a>

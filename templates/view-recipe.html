@@ -8,13 +8,37 @@
 </head>
 <body>
     <h1>{{ recipe.recipe_name }}</h1>
+    <h4>Views: {{ recipe.views }}</h4>
+    {% if logged_in == True %}
+        {%  if up_down_voted == "Up" %}
+        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button style="background-color: red">Up Vote</button></a>
+        <h4>{{ recipe.up_down_votes }}</h4>
+        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button>Down Vote</button></a>
+        
+        {% elif up_down_voted == "Down" %}
+        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button>Up Vote</button></a>
+        <h4>{{ recipe.up_down_votes }}</h4>
+        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button style="background-color: red">Down Vote</button></a>
+        
+        {% else %}
+        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button>Up Vote</button></a>
+        <h4>{{ recipe.up_down_votes }}</h4>
+        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button>Down Vote</button></a>
+        {% endif %}
+    {% endif %}
     {% if recipe.tags != [] %}
         {% for x in recipe.tags %}
             <button>{{ x }}</button>
         {% endfor %}
     {% endif %}
+    
     {% if logged_in == True %}
-        <a href=""><button>Add to Cook Book</button></a>
+        <!-- Depending on if a user has this recipe in their cook book or not, a different button will apear for them to add or remove it. -->
+        {% if is_in == True %}
+            <a href="{{ url_for('remove_cook_book', recipe_id = recipe._id) }}"><button>Remove from Cook Book</button></a>
+        {% else %}
+            <a href="{{ url_for('add_cook_book', recipe_id = recipe._id) }}"><button>Add to Cook Book</button></a>
+        {% endif %}
     {% endif %}
     <p><strong>Description:</strong></p>
     <p>{{ recipe.recipe_desc }}</p>
@@ -34,7 +58,7 @@
     </ul>
     <p><strong>Instructions</strong></p>
     <ol>
-        {% for x in recipe.steps %}
+        {% for x in recipe.instructions %}
         <li>{{ x }}</li>
         {% endfor %}
     </ol>

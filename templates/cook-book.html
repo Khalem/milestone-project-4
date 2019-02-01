@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Edit {{ recipe.recipe_name }}</title>
+    <title>Cook Book</title>
 </head>
 <body>
-    
     <nav>
         <ul>
             <a href="{{ url_for('log_out') }}">Log Out</a>
@@ -17,15 +16,14 @@
         </ul>
     </nav>
     
-    <h2>Create a Recipe</h2>
-    <form action="{{ url_for('update_recipe', recipe_id = recipe._id) }}" method="POST">
-        <!-- Recipe Name -->
-        <input type="text" name="recipe_name" value="{{recipe.recipe_name}}"/>
-        <!-- Recipe Description -->
-        <textarea name="recipe_desc">{{ recipe.recipe_desc}}</textarea>
-        <!-- Recipe Country -->
-        <select name="country_of_origin">
-                <option value="{{ recipe.country_of_origin }}" selected>{{ recipe.country_of_origin }}</option>
+    <h2>My Cook Book</h2>
+    
+    {% if total > 0 %}
+        <!-- User won't get the option to search unless the user has recipes -->
+        <form action="" method="POST">
+            <!-- Country select, A LOT of values, you've been warned -->
+            <select name="country_of_origin">
+                <option disabled selected>Country of Origin</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
                 <option value="Algeria">Algeria</option>
@@ -266,84 +264,43 @@
                 <option value="Zambia">Zambia</option>
                 <option value="Zimbabwe">Zimbabwe</option>
             </select>
-        <!-- Allergens select will give the user multiple options to choose. Will add with materialize -->
-        <select name="allergens">
-                {% for allergen in recipe.allergens %}
-                    <option value="{{ allergen }}" selected>{{ allergen }}</option>
-                {% endfor %}
-                <option value="Peanuts">Peanuts</option>
-        </select>
-        <!-- Ingredients - will get number of ingredients from db then create input fields based on it. -->
-        <div id="ingredients_fields">
-        <select id="number_of_ingredients" name="number_of_ingredients">
-            <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-    </select>
-        {% for i in range(recipe.ingredients|length) %}
-            <input type="text" class="ingredients_remove" name="ingredients[{{ i }}]"  value="{{ recipe.ingredients[i] }}"/>
-        {% endfor %}
-        </div>
-        <!-- Instructions - will get number of instructions from db then create input fields based on it. -->
-        <div id="instructions_fields">
-            <select id="number_of_instructions" name="number_of_instructions">
-                <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
+            <input type="text" name="recipe_name"/>
+            <select name="category">
+                <option disabled selected>Category</option>
+                <option>Baking</option>
+                <option>Cooking</option>
             </select>
-            {% for i in range(recipe.instructions|length) %}
-                <input type="text" class="instructions_remove" name="instructions[{{ i }}]" value="{{ recipe.instructions[i] }}"/>
-            {% endfor %}
-        </div>
+            <select name="allergens">
+                <option disabled selected>Allergens</option>
+            </select>
+            <select name="tags">
+                <option disabled selected>Tags</option>
+            </select>
+            <button type="submit">Submit</button>
+        </form>
         
-        <!-- User can add their own category if they'd like
-            As of now, the category that the recipe originally had is showing up. However a user would have to delete the current value to see the other options. Likely that I will have to change this.
-        -->
-        <input type="text" list="categories" name="category" value="{{ recipe.category }}"/>
-            <datalist id="categories">
-                {% for category in categories %}
-                        <option>{{ category.category_name }}</option>
-                {% endfor %}
-            </datalist>
-        <!-- Tags select will give the user multiple options to choose. Will add with materialize -->
-        <select name="tags">
-                {% for tag in recipe.tags %}
-                <option selected>{{ tag }}</option>
-                {% endfor %}
-                <option value="Gluten Free">Gluten Free</option>
-                <option value="Low Calories">Low Calories</option>
-        </select>
-        <button type="submit">Submit</button>
-    </form>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
-    
+        {% if count > 0 %}
+            {{ pagination.info }}
+            {% for recipe in recipes %}
+            <a href="{{ url_for('view_recipe', recipe_id = recipe._id) }}" target="_blank">
+                <div class="card">
+                    <h3>{{ recipe.recipe_name }}</h3>
+                    <p>{{ recipe.recipe_desc }}</p>
+                    <p>{{ recipe.author }}</p>
+                    <p>{{ recipe.views }}</p>
+                    <p>{{ recipe.up_down_votes }}</p>
+                    <!-- When clicked, user will delete recipe. Will add modal to confirm deletion with materialize -->
+                    <a href="{{ url_for('remove_cook_book', recipe_id = recipe._id) }}"><button>Remove from Cook Book</button></a>
+                </div>
+            {% endfor %}
+            {{ pagination.links }}
+        {% else %}
+        <h2>There was no results for that search!</h2>
+        {% endif %}
+        </a>
+        <!-- If user has no recipes, this will prompt them to make one. -->
+    {% else %}
+        <h3>You have no recipes in your Cook Book. <a href="{{ url_for('index') }}">Would you like to find one?</a></h3>
+    {% endif %}
 </body>
 </html>
