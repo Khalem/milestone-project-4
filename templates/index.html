@@ -13,8 +13,8 @@
         <ul>
             {% if logged_in == True %}
                 <a href="{{ url_for('log_out') }}">Log Out</a>
-                <a href="{{ url_for('my_recipes') }}"><li>My Recipes</li></a>
-                <a href="{{ url_for('cook_book') }}"><li>Cook Book</li></a>
+                <a href="{{ url_for('my_recipes', query = 'None') }}"><li>My Recipes</li></a>
+                <a href="{{ url_for('cook_book', query = 'None') }}"><li>Cook Book</li></a>
                 <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
             {% else %}
                 <a href=""><li>Log In</li></a>
@@ -42,7 +42,7 @@
     
     <h2>Check out what's hot, or search for a recipe!</h2>
     <form action="" method="POST">
-        <!-- Country select, A LOT of valus, you've been warned -->
+        <!-- Country select, A LOT of values, you've been warned -->
         <select name="country_of_origin">
             <option disabled selected>Country of Origin</option>
             <option value="Afghanistan">Afghanistan</option>

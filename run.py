@@ -33,22 +33,20 @@ def get_records(find_recipes, page_size, page_num):
         # Return documents
         return [x for x in recipe]
 
-@app.route("/", methods=["POST", "GET"])
-def index():
-    """
-        Recipes will be decided on if the user has searched for something or not. If the user has searched for something, it will take the user input by first checking they entered a value for that field.
-        If not, I will just return all results by checking that it exists. The results will then be paginated using flask-paginate and get_records()
-    """
-    if request.method == "POST":
-        recipe_name = check_for_input(request.form["recipe_name"])
-        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
-        category = check_for_input(request.form.get("category", False))
-        allergens = check_for_input(request.form.get("allergens", False))
-        tags = check_for_input(request.form.get("tags", False))
-
-        recipes = mongo.db.recipes.find({"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags} )
-    else:
+@app.route("/")
+@app.route("/<query>")
+def index(query = None):
+    
+    if query == None:
+        # If value of query doesn't change, return all reslults as user has just visited the site.
         recipes = mongo.db.recipes.find()
+    else:
+        # Convert query to dict by first changing it from unicode to str, then to dict using ast.literal_eval()
+        # Use variable in the find query.
+        query = str(query)
+        dict_query = ast.literal_eval(query)
+        recipes = mongo.db.recipes.find(dict_query)
+    
     
     logged_in = False
     search = False
@@ -105,6 +103,48 @@ def log_out():
     session.pop("username", None)
     return redirect(url_for("index"))
 
+
+@app.route("/filter_home", methods=["POST"])
+def filter_home():
+    """
+        To filter through results, I will first declare that not all fields are required. I will then pass the input to the check_for_input() function
+        There, it will find out if anything was filled in the fields. If the fields weren't filled in, I will just return all results within that key by checking it exists.
+    """
+    
+    recipe_name = check_for_input(request.form["recipe_name"])
+    country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+    category = check_for_input(request.form.get("category", False))
+    allergens = check_for_input(request.form.get("allergens", False))
+    tags = check_for_input(request.form.get("tags", False))
+    
+    return redirect(url_for("index", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags})) 
+
+
+@app.route("/filter_my_recipes", methods=["POST"])
+def filter_my_recipes():
+    """
+        To filter through results, I will first declare that not all fields are required. I will then pass the input to the check_for_input() function
+        There, it will find out if anything was filled in the fields. If the fields weren't filled in, I will just return all results within that key by checking it exists.
+    """
+    
+    recipe_name = check_for_input(request.form["recipe_name"])
+    country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+    category = check_for_input(request.form.get("category", False))
+    allergens = check_for_input(request.form.get("allergens", False))
+    tags = check_for_input(request.form.get("tags", False))
+    
+    return redirect(url_for("my_recipes", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]})) 
+
+@app.route("/filter_cook_book", methods=["POST"])
+def filter_cook_book():
+    recipe_name = check_for_input(request.form["recipe_name"])
+    country_of_origin = check_for_input(request.form.get("country_of_origin", False))
+    category = check_for_input(request.form.get("category", False))
+    allergens = check_for_input(request.form.get("allergens", False))
+    tags = check_for_input(request.form.get("tags", False))
+    
+    return redirect(url_for("cook_book", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}))
+
 @app.route("/view_recipe/<recipe_id>")
 def view_recipe(recipe_id):
     """
@@ -114,10 +154,11 @@ def view_recipe(recipe_id):
     # Check if user is logged in - must pass through so the option to add to cook book will be hidden from users who aren't logged in, also check if user has recipe in cook book.
     logged_in = False
     is_in = False
-    up_down_voted = ""
     if "username" in session:
         logged_in = True
         user = mongo.db.user.find_one({"username": session["username"]})
+        
+        up_down_voted = ""
     
         if recipe_id in user["up_voted"]:
             up_down_voted = "Up"
@@ -129,6 +170,8 @@ def view_recipe(recipe_id):
         if recipe_id in cook_book:
             is_in = True
     
+    
+    
     # The following lines of code will increase the views of the recipe and update the database. 
     recipe = mongo.db.recipes.find_one({"_id": ObjectId(recipe_id)})
     new_views = recipe["views"]
@@ -139,25 +182,21 @@ def view_recipe(recipe_id):
     return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in, is_in = is_in, up_down_voted = up_down_voted)
 
 
-@app.route("/my_recipes", methods=["POST", "GET"])
-def my_recipes():
+@app.route("/my_recipes/<query>")
+def my_recipes(query = None):
     """
-        Users can view the recipes they've created through this function. Like index(), my_recipes will too check if the user has searched for a recipe that they have created.
-        Done by adding the 'author' to the query.
+        Users can view the recipes they've created through this function. 
     """
-    total_recipes = mongo.db.recipes.find({"author": session["username"]})
-    total = total_recipes.count()
-    
-    if request.method == "POST":
-        recipe_name = check_for_input(request.form["recipe_name"])
-        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
-        category = check_for_input(request.form.get("category", False))
-        allergens = check_for_input(request.form.get("allergens", False))
-        tags = check_for_input(request.form.get("tags", False))
-
-        recipes = mongo.db.recipes.find({"author": session["username"], "recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags} )
-    else:
+    total = mongo.db.recipes.find({"author": session["username"]}).count()
+    if query == None:
+        # If value of query doesn't change, return all reslults as user has just visited the site.
         recipes = mongo.db.recipes.find({"author": session["username"]})
+    else:
+        # Convert query to dict by first changing it from unicode to str, then to dict using ast.literal_eval()
+        # Use variable in the find query.
+        query = str(query)
+        dict_query = ast.literal_eval(query)
+        recipes = mongo.db.recipes.find(dict_query)
     
     search = False
     q = request.args.get('q')
@@ -170,7 +209,7 @@ def my_recipes():
     page = request.args.get(get_page_parameter(), type=int, default=1)
     pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
     
-    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination)
+    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination, total = total)
 
 
 @app.route("/create_recipe")
@@ -311,28 +350,26 @@ def add_cook_book(recipe_id):
     return redirect(url_for("cook_book"))
     
 
-@app.route("/cook_book", methods=["POST", "GET"])
-def cook_book(): 
-    """
-        Simliar to index and my_recipes, cook_book will too check if the user has searched for a recipe. Before I can filter through the recipes, I must add an ObjectId to all
-        values in cook_book[]. 
-    """
+@app.route("/cook_book/<query>")
+def cook_book(query = None): 
+    
     user = mongo.db.user.find_one({"username": session["username"]})
     cook_book = user["cook_book"]
     total = len(cook_book)
     for i in range(len(cook_book)):
         cook_book[i] = ObjectId(cook_book[i])
-
-    if request.method == "POST":
-        recipe_name = check_for_input(request.form["recipe_name"])
-        country_of_origin = check_for_input(request.form.get("country_of_origin", False))
-        category = check_for_input(request.form.get("category", False))
-        allergens = check_for_input(request.form.get("allergens", False))
-        tags = check_for_input(request.form.get("tags", False))
-
-        recipes = mongo.db.recipes.find({"_id": {"$in": cook_book}, "recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]} )
-    else:
+    
+    if query == "None" :
+        # If value of query doesn't change, return all reslults as user has just visited the site.
         recipes = mongo.db.recipes.find({"_id": {"$in": cook_book}})
+    else:
+        # Convert query to dict by first changing it from unicode to str, then to dict using ast.literal_eval()
+        # Use variable in the find query.
+        # Add cook_book to dict to search recipe id's
+        query = str(query)
+        dict_query = ast.literal_eval(query)
+        dict_query["_id"] = {"$in": cook_book}
+        recipes = mongo.db.recipes.find(dict_query)
     
     count = recipes.count()
     
@@ -345,7 +382,7 @@ def cook_book():
     page = request.args.get(get_page_parameter(), type=int, default=1)
     pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
     
-    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), total = total, count = count, pagination = pagination)
+    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, total = total, pagination = pagination)
 
 
 @app.route("/remove_cook_book/<recipe_id>")

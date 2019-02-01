@@ -11,8 +11,8 @@
     <nav>
         <ul>
             <a href="{{ url_for('log_out') }}">Log Out</a>
-            <a href="{{ url_for('my_recipes') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book') }}"><li>Cook Book</li></a>
+            <a href="{{ url_for('my_recipes', query = 'None') }}"><li>My Recipes</li></a>
+            <a href="{{ url_for('cook_book', query = 'None') }}"><li>Cook Book</li></a>
             <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
         </ul>
     </nav>
