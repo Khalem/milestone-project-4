@@ -18,7 +18,10 @@ h1 {
 h4 {
     font-weight: inherit;
 }
-
+h6{
+    display: inline-block;
+    margin-right: 20px;
+}
 .bold {
     font-weight: 700;
 }
@@ -37,6 +40,26 @@ h4 {
     font-family: "Poppins", sans-serif;
     font-weight: 700;
     margin-top: 2em;
+}
+#up_vote, #down_vote{
+    cursor: pointer;
+}
+a{
+    color: inherit;
+}
+.blue-thumb{
+    color: #66F7FC;
+}
+.red-thumb{
+    color: #FF4B51;
+}
+img{
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 /* --  /Misc Styles  -- */
 
@@ -269,6 +292,16 @@ footer span{
         margin-top: 20%;
         margin-bottom: 10%;
     }
+    img{
+        display: inline-block; 
+    }
+    .cook-btn{
+        float: right;
+    }
+    .tags-btn{
+        float: left;
+        margin-right: 20px;
+    }
 }
 
 @media only screen and (min-width: 992px) {
@@ -278,6 +311,11 @@ footer span{
     .heading-spaced{
         margin-top: 15%;
         margin-bottom: 9%;
+    }
+    img{
+        width: 100%;
+        max-width: 500px;
+        height: auto;
     }
 }
 

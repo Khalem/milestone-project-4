@@ -40,3 +40,9 @@ $(document).ready(function(){
 });
 
 $('.dropdown-trigger').dropdown();
+
+// Carousel
+$(document).ready(function(){
+    $('.carousel').carousel();
+  });
+ 

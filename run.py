@@ -388,7 +388,7 @@ def add_cook_book(recipe_id):
                     "cook_book": recipe_id
                 }})
     
-    return redirect(url_for("cook_book"))
+    return redirect(url_for("cook_book", query = "None", sort = "None"))
     
 
 @app.route("/cook_book/<query>/<sort>")
@@ -464,25 +464,46 @@ def up_voted(recipe_id):
     """
     user = mongo.db.user.find_one({"username": session["username"]})
     up_voted = user["up_voted"]
+    down_voted = user["down_voted"]
     if recipe_id not in up_voted:
-        mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
-                                {"$inc":
-                                    {
-                                        "up_down_votes": 1
-                                    }
-                                })
+        if recipe_id not in down_voted:
+            mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                        {"$inc":
+                                            {
+                                                "up_down_votes": 1
+                                            }
+                                        })
     
-        mongo.db.user.update_one({"username": session["username"]},
-                                    {"$push":
-                                        {
-                                            "up_voted": recipe_id
-                                        },
-                                    "$pull":
-                                         {
-                                             "down_voted": recipe_id
-                                         }
-                                    }
-                                    )
+            mongo.db.user.update_one({"username": session["username"]},
+                                        {"$push":
+                                            {
+                                                "up_voted": recipe_id
+                                            },
+                                        "$pull":
+                                             {
+                                                 "down_voted": recipe_id
+                                             }
+                                        }
+                                        )
+        else:
+            mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                        {"$inc":
+                                            {
+                                                "up_down_votes": 2
+                                            }
+                                        })
+    
+            mongo.db.user.update_one({"username": session["username"]},
+                                        {"$push":
+                                            {
+                                                "up_voted": recipe_id
+                                            },
+                                        "$pull":
+                                             {
+                                                 "down_voted": recipe_id
+                                             }
+                                        }
+                                        )
     
     return redirect(url_for("view_recipe", recipe_id = recipe_id))
 
@@ -494,25 +515,46 @@ def down_voted(recipe_id):
     """
     user = mongo.db.user.find_one({"username": session["username"]})
     down_voted = user["down_voted"]
+    up_voted = user["up_voted"]
     if recipe_id not in down_voted:
-        mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
-                                {"$inc":
-                                    {
-                                        "up_down_votes": -1
-                                    }
-                                })
-    
-        mongo.db.user.update_one({"username": session["username"]},
-                                    {"$push":
+        if recipe_id not in up_voted:
+            mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                    {"$inc":
                                         {
-                                            "down_voted": recipe_id
-                                        },
-                                    "$pull":
-                                         {
-                                             "up_voted": recipe_id
-                                         }
-                                    }
-                                    )
+                                            "up_down_votes": -1
+                                        }
+                                    })
+        
+            mongo.db.user.update_one({"username": session["username"]},
+                                        {"$push":
+                                            {
+                                                "down_voted": recipe_id
+                                            },
+                                        "$pull":
+                                             {
+                                                 "up_voted": recipe_id
+                                             }
+                                        }
+                                        )
+        else:
+            mongo.db.recipes.update_one({"_id": ObjectId(recipe_id)},
+                                    {"$inc":
+                                        {
+                                            "up_down_votes": -2
+                                        }
+                                    })
+        
+            mongo.db.user.update_one({"username": session["username"]},
+                                        {"$push":
+                                            {
+                                                "down_voted": recipe_id
+                                            },
+                                        "$pull":
+                                             {
+                                                 "up_voted": recipe_id
+                                             }
+                                        }
+                                        )
     
     return redirect(url_for("view_recipe", recipe_id = recipe_id))
 

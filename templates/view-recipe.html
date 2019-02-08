@@ -1,59 +1,100 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ recipe.recipe_name }}</title>{% endblock %}
 {% block content %}
-<h1>{{ recipe.recipe_name }}</h1>
-    <h4>Views: {{ recipe.views }}</h4>
-    {% if logged_in == True %}
-        {%  if up_down_voted == "Up" %}
-        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button style="background-color: red">Up Vote</button></a>
-        <h4>{{ recipe.up_down_votes }}</h4>
-        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button>Down Vote</button></a>
-        
-        {% elif up_down_voted == "Down" %}
-        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button>Up Vote</button></a>
-        <h4>{{ recipe.up_down_votes }}</h4>
-        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button style="background-color: red">Down Vote</button></a>
-        
-        {% else %}
-        <a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><button>Up Vote</button></a>
-        <h4>{{ recipe.up_down_votes }}</h4>
-        <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><button>Down Vote</button></a>
-        {% endif %}
-    {% endif %}
-    {% if recipe.tags != [] %}
-        {% for x in recipe.tags %}
-            <button>{{ x }}</button>
-        {% endfor %}
-    {% endif %}
-    
-    {% if logged_in == True %}
-        <!-- Depending on if a user has this recipe in their cook book or not, a different button will apear for them to add or remove it. -->
-        {% if is_in == True %}
-            <a href="{{ url_for('remove_cook_book', recipe_id = recipe._id) }}"><button>Remove from Cook Book</button></a>
-        {% else %}
-            <a href="{{ url_for('add_cook_book', recipe_id = recipe._id) }}"><button>Add to Cook Book</button></a>
-        {% endif %}
-    {% endif %}
-    <p><strong>Description:</strong></p>
-    <p>{{ recipe.recipe_desc }}</p>
-    <p><strong>Country of Origin:</strong></p>
-    <p>{{ recipe.country_of_origin }}</p>
-    <p><strong>Allergens:</strong></p>
+<nav>
+    <h6>Easy Recipes</h6>
     <ul>
-        {% for x in recipe.allergens %}
-            <li>{{ x }}</li>
-        {% endfor %}
+        {% if logged_in == True %}
+            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
+            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
+            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
+            <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
+        {% else %}
+            <a  data-target="modal1" href="" class="modal-trigger"><li>Log In</li></a>
+        {% endif %}
     </ul>
-    <p><strong>Ingredients</strong></p>
-    <ul>
-        {% for x in recipe.ingredients %}
-        <li>{{ x }}</li>
-        {% endfor %}
-    </ul>
-    <p><strong>Instructions</strong></p>
-    <ol>
-        {% for x in recipe.instructions %}
-        <li>{{ x }}</li>
-        {% endfor %}
-    </ol>
+</nav>
+
+
+<div class="container">
+    <h1 class="center-align heading-spaced">{{ recipe.recipe_name }}</h1>
+    <div class="row">
+        <h6><i class="fas fa-eye"></i> {{ recipe.views }}</h6>
+        <!-- If user is logge in, they will have the option to up or down vote the recipe -->
+        {% if logged_in == True %}
+            <!-- If user has upvoted, thumbs up will be blue -->
+            {% if up_down_voted == "Up" %}
+                <h6><a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><i id="up_vote" class="far fa-thumbs-up blue-thumb"></i></a> {{ recipe.up_down_votes }} <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><i id="down_vote" class="far fa-thumbs-down"></a></i></i></h6>
+            <!-- If user has downvoted, thumbs down will be red -->
+            {% elif up_down_voted == "Down" %}
+                <h6><a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><i id="up_vote" class="far fa-thumbs-up"></i></a> {{ recipe.up_down_votes }} <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><i id="down_vote" class="far fa-thumbs-down red-thumb"></a></i></i></h6>
+            <!-- Otherwise, both will be navy -->
+            {% else %}
+            <h6><a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><i id="up_vote" class="far fa-thumbs-up"></i></a> {{ recipe.up_down_votes }} <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><i id="down_vote" class="far fa-thumbs-down"></a></i></i></h6>
+            {% endif %}
+            <!-- If a user is not logged in and they try to upvote, they will be prompted to either sign up or login to do so -->
+        {% else %}
+            <h6><i id="up_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-up"></i> {{ recipe.up_down_votes }} <i id="down_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-down"></i></i></h6>
+        {% endif %}
+    </div>
+        <!-- Buttons -->
+        <div class="row center spaced">
+            <!-- Button tags, only visible from tablets up -->
+            {% if recipe.tags != [] %}
+                {% for x in recipe.tags %}
+                    <button class="btn blue-btn tags-btn hide-on-small-only">{{ x }}</button>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- User will only be shown this button if they are logged in -->
+            {% if logged_in == True %}
+                <!-- Depending on if a user has this recipe in their cook book or not, a different button will apear for them to add or remove it. -->
+                {% if is_in == True %}
+                    <a href="{{ url_for('remove_cook_book', recipe_id = recipe._id) }}"><button class="btn red-btn cook-btn">Remove from Cook Book</button></a>
+                {% else %}
+                    <a href="{{ url_for('add_cook_book', recipe_id = recipe._id) }}"><button class="btn green-btn cook-btn">Add to Cook Book</button></a>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+    <!-- Recipe -->
+    <div class="row">
+        <div class="col s12 m7 l7">
+            <!-- Will change this to recipe.img_src when it is added to db -->
+            <img src="{{ url_for('static', filename='images/pancakes.jpg') }}" alt="Recipe Image"/>
+        </div>
+        <div class="col s12 m5 l5">
+            <p class="bold">Description:</p>
+            <p>{{ recipe.recipe_desc }}</p>
+            <p class="bold">Country of Origin:</p>
+            <p>{{ recipe.country_of_origin }}</p>
+            <p class="bold">Allergens:</p>
+            <ul>
+                {% for x in recipe.allergens %}
+                    <li>{{ x }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <!-- Ingredients and Steps -->
+    <div class="row">
+        <div class="col s12 m6 l6">
+            <p class="bold">Ingredients</p>
+            <ul>
+                {% for x in recipe.ingredients %}
+                <li>{{ x }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col s12 m6 l6">
+            <p class="bold">Instructions</p>
+            <ol>
+                {% for x in recipe.instructions %}
+                    <li>{{ x }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
