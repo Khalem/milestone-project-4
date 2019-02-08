@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ recipe.recipe_name }}</title>
-</head>
-<body>
-    <h1>{{ recipe.recipe_name }}</h1>
+{% extends "base.html" %}
+{% block title %}<title>{{ recipe.recipe_name }}</title>{% endblock %}
+{% block content %}
+<h1>{{ recipe.recipe_name }}</h1>
     <h4>Views: {{ recipe.views }}</h4>
     {% if logged_in == True %}
         {%  if up_down_voted == "Up" %}
@@ -62,6 +56,4 @@
         <li>{{ x }}</li>
         {% endfor %}
     </ol>
-    
-</body>
-</html>
+{% endblock %}

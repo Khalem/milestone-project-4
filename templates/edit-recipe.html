@@ -1,30 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Edit {{ recipe.recipe_name }}</title>
-</head>
-<body>
-    
+{% extends "base.html" %}
+{% block title %}<title>Edit {{ recipe.recipe_name }}</title>{% endblock %}
+{% block content %}
+<div class="row">
     <nav>
+        <h6>Easy Recipes</h6>
         <ul>
-            <a href="{{ url_for('log_out') }}">Log Out</a>
-            <a href="{{ url_for('my_recipes', query = 'None') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book', query = 'None') }}"><li>Cook Book</li></a>
+            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
+            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
+            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
             <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
         </ul>
     </nav>
+</div>
     
-    <h2>Create a Recipe</h2>
+<div class="container">
+    <h1 class="heading-spaced center-align">Edit {{ recipe.recipe_name }}</h1>
+    
     <form action="{{ url_for('update_recipe', recipe_id = recipe._id) }}" method="POST">
-        <!-- Recipe Name -->
-        <input type="text" name="recipe_name" value="{{recipe.recipe_name}}"/>
-        <!-- Recipe Description -->
-        <textarea name="recipe_desc">{{ recipe.recipe_desc}}</textarea>
-        <!-- Recipe Country -->
-        <select name="country_of_origin">
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <input type="text" name="recipe_name" id="recipe_name" value="{{ recipe.recipe_name }}"/>
+                <label for="recipe_name">Recipe Name</label>
+            </div>
+            <div class="input-field col s12 m6">
+                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea">{{ recipe.recipe_desc }}</textarea>
+                <label for="recipe_desc">Recipe Description</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <select name="country_of_origin" id="country_of_origin">
                 <option value="{{ recipe.country_of_origin }}" selected>{{ recipe.country_of_origin }}</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
@@ -266,84 +271,108 @@
                 <option value="Zambia">Zambia</option>
                 <option value="Zimbabwe">Zimbabwe</option>
             </select>
+                <label for="country_of_origin">Country of Origin</label>
+            </div>
+            <div class="input-field col s12 m6">
+                <select name="allergens" id="allergens" multiple>
+                    {% for allergen in allergens %}
+                        {% if allergen.allergen_name in recipe.allergens %}
+                            <option selected>{{ allergen.allergen_name }}</option>
+                        {% else %}
+                            <option>{{ allergen.allergen_name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <label for="allergens">Allergens</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <div id="ingredients_fields">
+                    <select id="number_of_ingredients" name="number_of_ingredients" id="number_of_ingredients">
+                        <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                    <label for="number_of_ingredients">Number of Ingredients</label>
+                    <!-- Create input fields for ingredients with values -->
+                    {% for i in range(recipe.ingredients|length) %}
+                        <input type="text" class="ingredients_remove" name="ingredients[{{ i }}]"  value="{{ recipe.ingredients[i] }}"/>
+                        <label class="label_remove" for="ingredients[{{ i }}]">Ingredient {{ i + 1 }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="input-field col s12 m6">
+                <div id="instructions_fields">
+                    <select id="number_of_instructions" name="number_of_instructions" id="number_of_instructions">
+                        <option value="{{ recipe.number_of_instructions }}" selected>{{ recipe.number_of_instructions }}</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                    <label for="number_of_instructions">Number of Instructions</label>
+                    {% for i in range(recipe.instructions|length) %}
+                        <input type="text" class="instructions_remove" name="instructions[{{ i }}]" id="instructions[{{ i }}]" value="{{ recipe.instructions[i] }}"/>
+                        <label class="instructions_label_remove" for="instructions[{{ i }}]">Step {{ i + 1 }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <!-- User can add their own category if they'd like -->
+                <input type="text" list="categories" name="category" value="{{ recipe.category }}" />
+                    <datalist id="categories">
+                        {% for category in categories %}
+                          <option>{{ category.category_name }}</option>
+                        {% endfor %}
+                    </datalist>
+                <label for="categories">Like to pick one of our presets? Just delete below!</label>
+            </div>
+            <div class="input-field col s12 m6">
+                
+                <!-- User can now add multiple tags, used Jinja to check which tags user has already picked so there wouldn't be any duplicates -->
+                <select name="tags" id="tags" multiple>
+                        {% for tag in tags %}
+                            {% if tag.tag_name in recipe.tags %}
+                                <option selected>{{ tag.tag_name }}</option>
+                            {% else %}
+                                <option>{{ tag.tag_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                </select>
+                <label for="tags">Tags</label>
+            </div>
+        </div>
         <!-- Allergens select will give the user multiple options to choose. Will add with materialize -->
-        <select name="allergens">
-                {% for allergen in recipe.allergens %}
-                    <option value="{{ allergen }}" selected>{{ allergen }}</option>
-                {% endfor %}
-                <option value="Peanuts">Peanuts</option>
-        </select>
-        <!-- Ingredients - will get number of ingredients from db then create input fields based on it. -->
-        <div id="ingredients_fields">
-        <select id="number_of_ingredients" name="number_of_ingredients">
-            <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-    </select>
-        {% for i in range(recipe.ingredients|length) %}
-            <input type="text" class="ingredients_remove" name="ingredients[{{ i }}]"  value="{{ recipe.ingredients[i] }}"/>
-        {% endfor %}
+        <div class="row center">
+            <button type="submit" class="btn green-btn">Edit!</button>
         </div>
-        <!-- Instructions - will get number of instructions from db then create input fields based on it. -->
-        <div id="instructions_fields">
-            <select id="number_of_instructions" name="number_of_instructions">
-                <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-            </select>
-            {% for i in range(recipe.instructions|length) %}
-                <input type="text" class="instructions_remove" name="instructions[{{ i }}]" value="{{ recipe.instructions[i] }}"/>
-            {% endfor %}
-        </div>
-        
-        <!-- User can add their own category if they'd like
-            As of now, the category that the recipe originally had is showing up. However a user would have to delete the current value to see the other options. Likely that I will have to change this.
-        -->
-        <input type="text" list="categories" name="category" value="{{ recipe.category }}"/>
-            <datalist id="categories">
-                {% for category in categories %}
-                        <option>{{ category.category_name }}</option>
-                {% endfor %}
-            </datalist>
-        <!-- Tags select will give the user multiple options to choose. Will add with materialize -->
-        <select name="tags">
-                {% for tag in recipe.tags %}
-                <option selected>{{ tag }}</option>
-                {% endfor %}
-                <option value="Gluten Free">Gluten Free</option>
-                <option value="Low Calories">Low Calories</option>
-        </select>
-        <button type="submit">Submit</button>
-    </form>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
-    
-</body>
-</html>
+        </form>
+    </div>
+    {% endblock %}

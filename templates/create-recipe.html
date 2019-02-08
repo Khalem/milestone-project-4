@@ -1,27 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Create Recipe</title>
-</head>
-<body>
-    
+{% extends "base.html" %}
+{% block title %}<title>Create a Recipe</title>{% endblock %}
+{% block content %}
+<div class="row">
     <nav>
+        <h6>Easy Recipes</h6>
         <ul>
-            <a href="{{ url_for('log_out') }}">Log Out</a>
-            <a href="{{ url_for('my_recipes', query = 'None') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book', query = 'None') }}"><li>Cook Book</li></a>
+            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
+            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
+            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
             <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
         </ul>
     </nav>
+</div>
     
-    <h2>Create a Recipe</h2>
+    <div class="container">
+        <h1 class="heading-spaced center-align">Create a Recipe</h1>
+    
     <form action="{{ url_for('insert_recipe') }}" method="POST">
-        <input type="text" name="recipe_name"/>
-        <textarea name="recipe_desc"></textarea>
-        <select name="country_of_origin">
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <input type="text" name="recipe_name" id="recipe_name"/>
+                <label for="recipe_name">Recipe Name</label>
+            </div>
+            <div class="input-field col s12 m6">
+                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea"></textarea>
+                <label for="recipe_desc">Recipe Description</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <select name="country_of_origin">
                 <option disabled selected>Country of Origin</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
@@ -263,69 +271,89 @@
                 <option value="Zambia">Zambia</option>
                 <option value="Zimbabwe">Zimbabwe</option>
             </select>
+            </div>
+            <div class="input-field col s12 m6">
+                <select name="allergens" multiple>
+                    <option disabled selected>Allergens</option>
+                    <option value="Peanuts">Peanuts</option>
+                    <option value="Dairy">Dairy</option>
+                    <option value="None">None</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <div id="ingredients_fields">
+                    <select id="number_of_ingredients" name="number_of_ingredients">
+                        <option disabled selected>Number of Ingredients</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-field col s12 m6">
+                <div id="instructions_fields">
+                    <select id="number_of_instructions" name="number_of_instructions">
+                        <option disabled selected>Number of Instructions</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12 m6">
+                <!-- User can add their own category if they'd like -->
+                <input type="text" list="categories" name="category" />
+                    <datalist id="categories">
+                        {% for category in categories %}
+                          <option>{{ category.category_name }}</option>
+                        {% endfor %}
+                    </datalist>
+                <label for="categories">Type to create a new category, or pick from our presets!</label>
+            </div>
+            <div class="input-field col s12 m6">
+                <!-- Tags select will give the user multiple options to choose. Will add with materialize -->
+                <select name="tags" multiple>
+                        <option disabled selected>Tags</option>
+                        <option value="gluten free">Gluten Free</option>
+                        <option value="Low Calories">Low Calories</option>
+                        <option value="Vegan">Vegan</option>
+                        <option value="Vegetarian">Vegetarian</option>
+                        <option value="Spicy">Spicy</option>
+                </select>
+            </div>
+        </div>
         <!-- Allergens select will give the user multiple options to choose. Will add with materialize -->
-        <select name="allergens">
-                <option disabled selected>Allergens</option>
-                <option value="Peanuts">Peanuts</option>
-                <option value="None">None</option>
-        </select>
-        <div id="ingredients_fields">
-        <select id="number_of_ingredients" name="number_of_ingredients">
-            <option disabled selected>Number of Ingredients</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
-            <option value="14">14</option>
-            <option value="15">15</option>
-    </select>
+        <div class="row center">
+            <button type="submit" class="btn green-btn">Submit</button>
         </div>
-        <div id="instructions_fields">
-            <select id="number_of_instructions" name="number_of_instructions">
-                <option disabled selected>Number of Instructions</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-            </select>
-        </div>
-        <!-- User can add their own category if they'd like -->
-        <input type="text" list="categories" name="category" />
-            <datalist id="categories">
-                {% for category in categories %}
-                  <option>{{ category.category_name }}</option>
-                {% endfor %}
-            </datalist>
-        <!-- Tags select will give the user multiple options to choose. Will add with materialize -->
-        <select name="tags">
-                <option disabled selected>Tags</option>
-                <option value="gluten free">Gluten Free</option>
-        </select>
-        <button type="submit">Submit</button>
     </form>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
-    
-</body>
-</html>
+    </div>
+{% endblock %}

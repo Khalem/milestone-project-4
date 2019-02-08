@@ -13,8 +13,11 @@ mongo = PyMongo(app)
 
 def check_for_input(value):
     # If there was no input, return all results within that key by checking it exists.
-    if value == False or value == "":
+    if value == False or value == "" or value == []:
         return {"$exists": True}
+    #  If user has selected multiple options, this will return the correct syntax for the mongodb query.
+    elif type(value) == list and value:
+        return {"$in": value}
     # If there was input, just return input.
     else:
         return value
@@ -34,8 +37,12 @@ def get_records(find_recipes, page_size, page_num):
         return [x for x in recipe]
 
 @app.route("/")
-@app.route("/<query>")
-def index(query = None):
+@app.route("/<query>/<sort>")
+def index(query = None, sort = None):
+    categories = mongo.db.categories.find()
+    tags = mongo.db.tags.find()
+    allergens = mongo.db.allergens.find()
+    
     
     if query == None:
         # If value of query doesn't change, return all reslults as user has just visited the site.
@@ -47,6 +54,15 @@ def index(query = None):
         dict_query = ast.literal_eval(query)
         recipes = mongo.db.recipes.find(dict_query)
     
+    # These lines of code will sort the recipes depending on what the user picks.
+    if sort == "most_views":
+        recipes.sort([("views", -1)])
+    elif sort == "least_views":
+        recipes.sort([("views", 1)])
+    elif sort == "best_rated":
+        recipes.sort([("up_down_votes", -1)])
+    elif sort == "worst_rated":
+        recipes.sort([("up_down_votes", 1)])
     
     logged_in = False
     search = False
@@ -62,9 +78,10 @@ def index(query = None):
     
     # Pagination using flask-paginate
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    pagination = Pagination(page=page, per_page= 6, total=count, search=search, record_name="recipes")
     
-    return render_template("index.html", logged_in = logged_in, recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination)
+    return render_template("index.html", logged_in = logged_in, recipes = get_records(recipes, 6, request.args.get(get_page_parameter(), type=int, default=1)),
+                            count = count, pagination = pagination, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
 @app.route("/register", methods=["POST"])
@@ -114,10 +131,13 @@ def filter_home():
     recipe_name = check_for_input(request.form["recipe_name"])
     country_of_origin = check_for_input(request.form.get("country_of_origin", False))
     category = check_for_input(request.form.get("category", False))
-    allergens = check_for_input(request.form.get("allergens", False))
-    tags = check_for_input(request.form.get("tags", False))
+    allergens = check_for_input(request.form.getlist("allergens"))
+    tags = check_for_input(request.form.getlist("tags"))
     
-    return redirect(url_for("index", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags})) 
+    print("test")
+    print(allergens)
+    
+    return redirect(url_for("index", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}, sort = "None")) 
 
 
 @app.route("/filter_my_recipes", methods=["POST"])
@@ -130,20 +150,20 @@ def filter_my_recipes():
     recipe_name = check_for_input(request.form["recipe_name"])
     country_of_origin = check_for_input(request.form.get("country_of_origin", False))
     category = check_for_input(request.form.get("category", False))
-    allergens = check_for_input(request.form.get("allergens", False))
-    tags = check_for_input(request.form.get("tags", False))
+    allergens = check_for_input(request.form.getlist("allergens"))
+    tags = check_for_input(request.form.getlist("tags"))
     
-    return redirect(url_for("my_recipes", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]})) 
+    return redirect(url_for("my_recipes", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]}, sort = "None")) 
 
 @app.route("/filter_cook_book", methods=["POST"])
 def filter_cook_book():
     recipe_name = check_for_input(request.form["recipe_name"])
     country_of_origin = check_for_input(request.form.get("country_of_origin", False))
     category = check_for_input(request.form.get("category", False))
-    allergens = check_for_input(request.form.get("allergens", False))
-    tags = check_for_input(request.form.get("tags", False))
+    allergens = check_for_input(request.form.getlist("allergens"))
+    tags = check_for_input(request.form.getlist("tags"))
     
-    return redirect(url_for("cook_book", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}))
+    return redirect(url_for("cook_book", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}, sort = "None"))
 
 @app.route("/view_recipe/<recipe_id>")
 def view_recipe(recipe_id):
@@ -154,11 +174,10 @@ def view_recipe(recipe_id):
     # Check if user is logged in - must pass through so the option to add to cook book will be hidden from users who aren't logged in, also check if user has recipe in cook book.
     logged_in = False
     is_in = False
+    up_down_voted = ""
     if "username" in session:
         logged_in = True
         user = mongo.db.user.find_one({"username": session["username"]})
-        
-        up_down_voted = ""
     
         if recipe_id in user["up_voted"]:
             up_down_voted = "Up"
@@ -182,12 +201,16 @@ def view_recipe(recipe_id):
     return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in, is_in = is_in, up_down_voted = up_down_voted)
 
 
-@app.route("/my_recipes/<query>")
-def my_recipes(query = None):
+@app.route("/my_recipes/<query>/<sort>")
+def my_recipes(query = None, sort = None):
     """
         Users can view the recipes they've created through this function. 
     """
     total = mongo.db.recipes.find({"author": session["username"]}).count()
+    categories = mongo.db.categories.find()
+    tags = mongo.db.tags.find()
+    allergens = mongo.db.allergens.find()
+    
     if query == None:
         # If value of query doesn't change, return all reslults as user has just visited the site.
         recipes = mongo.db.recipes.find({"author": session["username"]})
@@ -197,6 +220,16 @@ def my_recipes(query = None):
         query = str(query)
         dict_query = ast.literal_eval(query)
         recipes = mongo.db.recipes.find(dict_query)
+    
+    # These lines of code will sort the recipes depending on what the user picks.
+    if sort == "most_views":
+        recipes.sort([("views", -1)])
+    elif sort == "least_views":
+        recipes.sort([("views", 1)])
+    elif sort == "best_rated":
+        recipes.sort([("up_down_votes", -1)])
+    elif sort == "worst_rated":
+        recipes.sort([("up_down_votes", 1)])
     
     search = False
     q = request.args.get('q')
@@ -209,7 +242,8 @@ def my_recipes(query = None):
     page = request.args.get(get_page_parameter(), type=int, default=1)
     pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
     
-    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, pagination = pagination, total = total)
+    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)),
+                            count = count, pagination = pagination, total = total, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
 @app.route("/create_recipe")
@@ -260,15 +294,17 @@ def insert_recipe():
                         "tags": [request.form["tags"].lower().title()], "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"],
                         "number_of_ingredients": number_of_ingredients, "number_of_instructions": number_of_instructions})
                         
-    return redirect(url_for("my_recipes"))
+    return redirect(url_for("my_recipes", query = None, sort = None))
 
 
 @app.route("/edit_recipe/<recipe_id>")
 def edit_recipe(recipe_id):
     recipe = mongo.db.recipes.find_one({"_id": ObjectId(recipe_id)})
     categories = mongo.db.categories.find()
+    tags = mongo.db.tags.find()
+    allergens = mongo.db.allergens.find()
     
-    return render_template("edit-recipe.html", recipe = recipe, categories = categories)
+    return render_template("edit-recipe.html", recipe = recipe, categories = categories, tags = tags, allergens = allergens)
   
   
 @app.route("/update_recipe/<recipe_id>", methods=["POST"])
@@ -282,6 +318,8 @@ def update_recipe(recipe_id):
     recipe = recipes.find_one({"_id": ObjectId(recipe_id)})
     ingredients = []
     instructions = []
+    allergens = request.form.getlist("allergens")
+    tags = request.form.getlist("tags")
     views = recipe["views"]
     upvotes = recipe["up_down_votes"]
     
@@ -305,35 +343,38 @@ def update_recipe(recipe_id):
     for i in range(number_of_instructions):
         instructions.append(request.form["instructions[" + str(i) + "]"].lower().capitalize())
     
+    # Test
+    print(request.form.getlist("allergens"))
+    print(request.form.getlist("tags"))
     
     recipes.update({"_id": ObjectId(recipe_id)},
                     {
                         "recipe_name": request.form["recipe_name"],
                         "recipe_desc": request.form["recipe_desc"],
                         "country_of_origin": request.form["country_of_origin"],
-                        "allergens": [request.form["allergens"]],
+                        "allergens": allergens,
                         "number_of_ingredients": request.form["number_of_ingredients"],
                         "number_of_instructions": request.form["number_of_instructions"],
                         "ingredients": ingredients,
                         "instructions": instructions,
                         "category": request.form["category"],
-                        "tags": [request.form["tags"]],
+                        "tags": tags,
                         "author": session["username"],
                         "views": views,
                         "up_down_votes": upvotes
                         
                     })
     
-    return redirect(url_for("my_recipes"))
+    return redirect(url_for("my_recipes", query = "None", sort = "None"))
 
 
-@app.route("/delete_recipe/<recipe_id>")
-def delete_recipe(recipe_id):
+@app.route("/delete_recipe/<recipe_id>/<query>/<sort>")
+def delete_recipe(recipe_id, query, sort):
     """
         This function will remove recipe from database and redirect to my_recipes()
     """
     mongo.db.recipes.remove({"_id": ObjectId(recipe_id)})
-    return redirect(url_for("my_recipes"))
+    return redirect(url_for("my_recipes", query = query, sort = sort))
 
 
 @app.route("/add_cook_book/<recipe_id>")
@@ -350,8 +391,11 @@ def add_cook_book(recipe_id):
     return redirect(url_for("cook_book"))
     
 
-@app.route("/cook_book/<query>")
-def cook_book(query = None): 
+@app.route("/cook_book/<query>/<sort>")
+def cook_book(query = None, sort = None):
+    categories = mongo.db.categories.find()
+    tags = mongo.db.tags.find()
+    allergens = mongo.db.allergens.find()
     
     user = mongo.db.user.find_one({"username": session["username"]})
     cook_book = user["cook_book"]
@@ -371,6 +415,17 @@ def cook_book(query = None):
         dict_query["_id"] = {"$in": cook_book}
         recipes = mongo.db.recipes.find(dict_query)
     
+    # These lines of code will sort the recipes depending on what the user picks.
+    if sort == "most_views":
+        recipes.sort([("views", -1)])
+    elif sort == "least_views":
+        recipes.sort([("views", 1)])
+    elif sort == "best_rated":
+        recipes.sort([("up_down_votes", -1)])
+    elif sort == "worst_rated":
+        recipes.sort([("up_down_votes", 1)])
+    
+    
     count = recipes.count()
     
     search = False
@@ -382,7 +437,8 @@ def cook_book(query = None):
     page = request.args.get(get_page_parameter(), type=int, default=1)
     pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
     
-    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)), count = count, total = total, pagination = pagination)
+    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)),
+                            count = count, total = total, pagination = pagination, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
 @app.route("/remove_cook_book/<recipe_id>")

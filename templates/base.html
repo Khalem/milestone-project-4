@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% block title %} {% endblock %}
+    <!-- Materialize -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Pacifico|Poppins:400,700|Noto+Sans:400,700" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'css/style.css') }}" type="text/css" />
+</head>
+<body>
+    
+    {% block content %} {% endblock %}
+    
+    <!-- Modal -->
+    <div id="modal1" class="modal">
+    <div class="modal-content">
+        <div class="container">
+            <h4 class="bold center-align">Sign Up!</h4>
+            <form action="{{ url_for('register') }}" method="POST">
+                <div class="input-field">
+                    <input id="username" type="text" class="validate" name="username">
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field">
+                    <input id="password" type="text" class="validate" name="password">
+                    <label for="password">Password</label>
+                </div>
+                <div class="row center">
+                    <button class="btn green-btn" type="submit">Create Account!</button>
+                </div>
+            </form>
+            
+            <div id="log_in">
+                <h4 class="bold center-align">Already have an account? Log in!</h4>
+                <form action="{{ url_for('log_in') }}" method="POST">
+                    <div class="input-field">
+                        <input id="login_username" type="text" class="validate" name="username">
+                        <label for="login_username">Username</label>
+                    </div>
+                    <div class="input-field">
+                        <input id="login_password" type="text" class="validate" name="password">
+                        <label for="login_password">Password</label>
+                    </div>
+                    <div class="row center">
+                        <button class="btn blue-btn" type="submit">Login!</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+  </div>
+  
+  <footer>
+      <div class="row center">
+          <h6>Created with <span><i class="fas fa-heart"></i></span> by <a href="https://www.github.com/Khalem" target="_blank">Khalem Connaughton</a></h6>
+      </div>
+  </footer>
+  
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Script -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+</body>
+</html>

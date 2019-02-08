@@ -1,0 +1,284 @@
+body {
+    background-color: #F5F5F5;
+    color: #101A2B;
+    font-family: "Noto Sans", sans-serif;
+}
+
+/* --  Misc Styles  -- */
+
+hr {
+    border: 1px solid #66FC84;
+    width: 8%;
+}
+
+h1 {
+    font-family: "Pacifico", sans-serif;
+}
+
+h4 {
+    font-weight: inherit;
+}
+
+.bold {
+    font-weight: 700;
+}
+
+.spaced{
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.heading-spaced{
+    margin-top: 40%;
+    margin-bottom: 20%;
+}
+
+.content-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    margin-top: 2em;
+}
+/* --  /Misc Styles  -- */
+
+/* -- Landing -- */
+
+header {
+    width: 100%;
+    height: 90vh;
+    background: url("../images/landing.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.lighten-landing {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+}
+
+.landing-content {
+    margin-top: 50%;
+}
+
+/* -- /Landing -- */
+
+/* -- Nav Styles --*/
+
+nav {
+    z-index: 100;
+    top: 0;
+    background-color: #101A2B;
+    position: fixed;
+}
+
+nav ul {
+    height: 100%;
+    float: right;
+}
+
+nav ul a {
+    font-weight: 700;
+    color: white;
+    display: inline-block;
+    margin-right: 50px;
+}
+
+nav h6 {
+    margin-left: 50px;
+    font-family: "Pacifico", sans-serif;
+    line-height: 0;
+    display: inline-block;
+}
+
+/* -- /Nav Styles --*/
+
+/* -- Recipe Cards -- */
+
+.card {
+    border-radius: 5px;
+}
+
+.card-header {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    width: 100%;
+    height: 125px;
+    margin: 0;
+    background: #000000 url("https://images.pexels.com/photos/724216/pexels-photo-724216.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260") no-repeat center center;
+    position: relative;
+}
+
+.card-content {
+    padding: 15px;
+    height: 265px;
+}
+
+.card a {
+    font-family: "Poppins", sans-serif;
+    text-decoration: none;
+    font-weight: 700;
+    color: white;
+}
+
+.card .card-content p {
+    margin: 20px 0;
+}
+
+.darken-img {
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: rgba(16, 26, 43, 0.75)
+}
+
+/* -- /Recipe Cards -- */
+
+/* -- Button Styles -- */
+
+.btn {
+    font-weight: 700;
+    text-transform: none;
+    transition: .2s all ease-in-out;
+}
+
+.green-btn {
+    background-color: #66FC84;
+    color: #101A2B;
+}
+
+.blue-btn {
+    background-color: #66F7FC;
+    color: #101A2B;
+}
+.red-btn{
+    background-color: #FF4B51;
+    color: #101A2B;
+}
+.card-content .red-btn{
+    float: right;
+}
+.red-btn:hover{
+    background-color: #F44336;
+}
+.green-btn:hover {
+    background-color: #71ff8d;
+}
+
+.blue-btn:hover {
+    background-color: #92fbff;
+}
+
+/* -- Button Styles -- */
+
+/* -- Dropdown Styles -- */
+
+.dropdown-content li>a,
+.dropdown-content li>span {
+    background-color: #101A2B;
+    color: #66FC84;
+}
+
+#sort_by li a {
+    background-color: #101A2B;
+    color: #66F7FC;
+}
+
+/* -- /Dropdown Styles -- */
+
+/* -- Modal Styles --*/
+
+.modal-content button,
+.landing-content button {
+    width: 220px;
+}
+
+/* -- /Modal Styles --*/
+
+/* -- Pagination -- */
+
+.pagination {
+    text-align: center;
+}
+
+.pagination-page-info {
+    display: inline-block;
+    float: right;
+}
+
+.pagination li.active a {
+    color: #101A2B;
+}
+
+.pagination li.active {
+    background-color: #66F7FC;
+}
+
+/* -- /Pagination -- */
+
+/* -- Footer --*/
+footer{
+    height: 100%;
+    background-color: #101A2B;
+    margin-top: 50px;
+    margin-bottom: 0;
+}
+footer h6{
+    color: white;
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+footer h6 a{
+    color: #66F7FC;
+}
+footer span{
+    color: #FF094C;
+}
+/* -- /Footer --*/
+
+
+/* -- Input Styles -- */
+
+/* label focus color */
+.input-field input[type=text]:focus+label {
+    color: #33c751 !important;
+}
+
+/* label underline focus color */
+.input-field input[type=text]:focus {
+    border-bottom: 1px solid #33c751 !important;
+}
+/* For Log In text fields */
+#log_in .input-field input[type=text]:focus+label{
+    color: #36bdc1 !important;
+}
+#log_in .input-field input[type=text]:focus{
+    border-bottom: 1px solid #36bdc1 !important;
+}
+
+/* -- /Input Styles -- */
+
+/* -- Responsive -- */
+@media only screen and (min-width: 767px){
+    .heading-spaced{
+        margin-top: 20%;
+        margin-bottom: 10%;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .landing-content {
+        margin-top: 15%;
+    }
+    .heading-spaced{
+        margin-top: 15%;
+        margin-bottom: 9%;
+    }
+}
+
+/* -- /Responsive -- */
