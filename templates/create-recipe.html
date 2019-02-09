@@ -19,18 +19,35 @@
     <form action="{{ url_for('insert_recipe') }}" method="POST">
         <div class="row">
             <div class="input-field col s12 m6">
-                <input type="text" name="recipe_name" id="recipe_name"/>
+                <input type="text" name="recipe_name" id="recipe_name" required/>
                 <label for="recipe_name">Recipe Name</label>
             </div>
             <div class="input-field col s12 m6">
-                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea"></textarea>
+                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea" required></textarea>
                 <label for="recipe_desc">Recipe Description</label>
             </div>
         </div>
         <div class="row">
+            <div class="input-field col s12 m6 l6">
+                <input type="text" name="img_src" id="img_src" required/>
+                <label for="img_src">Paste the source of the image here</label>
+            </div>
+            <div class="input-field col s12 m6 l6">
+                <select name="recipe_time" required>
+                    <option value="" disabled selected>Recipe Time</option>
+                    <option>0 - 15 Minutes</option>
+                    <option>15 - 30 Minutes</option>
+                    <option>30 - 60 Minutes</option>
+                    <option>1 - 2 Hours</option>
+                    <option>2 - 3 Hours</option>
+                    <option>Over 3 Hours</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
             <div class="input-field col s12 m6">
-                <select name="country_of_origin">
-                <option disabled selected>Country of Origin</option>
+                <select name="country_of_origin" required>
+                <option value="" disabled selected>Country of Origin</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
                 <option value="Algeria">Algeria</option>
@@ -273,8 +290,8 @@
             </select>
             </div>
             <div class="input-field col s12 m6">
-                <select name="allergens" multiple>
-                    <option disabled selected>Allergens</option>
+                <select name="allergens" multiple required>
+                    <option value="" disabled selected>Allergens</option>
                     <option value="Peanuts">Peanuts</option>
                     <option value="Dairy">Dairy</option>
                     <option value="None">None</option>
@@ -285,7 +302,7 @@
             <div class="input-field col s12 m6">
                 <div id="ingredients_fields">
                     <select id="number_of_ingredients" name="number_of_ingredients">
-                        <option disabled selected>Number of Ingredients</option>
+                        <option value="" disabled selected>Number of Ingredients</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -306,8 +323,8 @@
             </div>
             <div class="input-field col s12 m6">
                 <div id="instructions_fields">
-                    <select id="number_of_instructions" name="number_of_instructions">
-                        <option disabled selected>Number of Instructions</option>
+                    <select id="number_of_instructions" name="number_of_instructions" required>
+                        <option value="" disabled selected>Number of Instructions</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -330,7 +347,7 @@
         <div class="row">
             <div class="input-field col s12 m6">
                 <!-- User can add their own category if they'd like -->
-                <input type="text" list="categories" name="category" />
+                <input type="text" list="categories" name="category" required/>
                     <datalist id="categories">
                         {% for category in categories %}
                           <option>{{ category.category_name }}</option>

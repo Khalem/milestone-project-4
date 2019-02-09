@@ -22,8 +22,8 @@ $("#number_of_instructions").change(function() {
     var instructions_selector_value = instructions_selector.value;
 
     for (var i = 0; i < instructions_selector_value; i++) {
-        $("#instructions_fields").append("<input type='text' class='instructions_remove' name='instructions[" + i + "]'/>");
-        $("#instructions_fields").append("<label for='instructions[" + i + "]' class='instructions_label_remove' >Instructions " + (i + 1) + "</label>");
+        $("#instructions_fields").append("<input type='text' class='instructions_remove' name='instructions[" + i + "]'/ required>");
+        $("#instructions_fields").append("<label for='instructions[" + i + "]' class='instructions_label_remove' required>Instructions " + (i + 1) + "</label>");
     }
 });
 

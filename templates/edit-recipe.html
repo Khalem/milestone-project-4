@@ -19,17 +19,35 @@
     <form action="{{ url_for('update_recipe', recipe_id = recipe._id) }}" method="POST">
         <div class="row">
             <div class="input-field col s12 m6">
-                <input type="text" name="recipe_name" id="recipe_name" value="{{ recipe.recipe_name }}"/>
+                <input type="text" name="recipe_name" id="recipe_name" value="{{ recipe.recipe_name }}" required/>
                 <label for="recipe_name">Recipe Name</label>
             </div>
             <div class="input-field col s12 m6">
-                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea">{{ recipe.recipe_desc }}</textarea>
+                <textarea name="recipe_desc" id="recipe_desc" class="materialize-textarea" required>{{ recipe.recipe_desc }}</textarea>
                 <label for="recipe_desc">Recipe Description</label>
             </div>
         </div>
         <div class="row">
+            <div class="input-field col s12 m6 l6">
+                <input type="text" name="img_src" id="img_src" value="{{ recipe.img_src }}" required/>
+                <label for="img_src">Paste the source of the image here</label>
+            </div>
+            <div class="input-field col s12 m6 l6">
+                <select name="recipe_time" required>
+                    <option selected>{{ recipe.recipe_time }}</option>
+                    <option disabled>Recipe Time</option>
+                    <option>0 - 15 Minutes</option>
+                    <option>15 - 30 Minutes</option>
+                    <option>30 - 60 Minutes</option>
+                    <option>1 - 2 Hours</option>
+                    <option>2 - 3 Hours</option>
+                    <option>Over 3 Hours</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
             <div class="input-field col s12 m6">
-                <select name="country_of_origin" id="country_of_origin">
+                <select name="country_of_origin" id="country_of_origin" required>
                 <option value="{{ recipe.country_of_origin }}" selected>{{ recipe.country_of_origin }}</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
@@ -274,7 +292,7 @@
                 <label for="country_of_origin">Country of Origin</label>
             </div>
             <div class="input-field col s12 m6">
-                <select name="allergens" id="allergens" multiple>
+                <select name="allergens" id="allergens" multiple required>
                     {% for allergen in allergens %}
                         {% if allergen.allergen_name in recipe.allergens %}
                             <option selected>{{ allergen.allergen_name }}</option>
@@ -289,7 +307,7 @@
         <div class="row">
             <div class="input-field col s12 m6">
                 <div id="ingredients_fields">
-                    <select id="number_of_ingredients" name="number_of_ingredients" id="number_of_ingredients">
+                    <select id="number_of_ingredients" name="number_of_ingredients" id="number_of_ingredients" required>
                         <option value="{{ recipe.number_of_ingredients }}" selected>{{ recipe.number_of_ingredients }}</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -310,14 +328,14 @@
                     <label for="number_of_ingredients">Number of Ingredients</label>
                     <!-- Create input fields for ingredients with values -->
                     {% for i in range(recipe.ingredients|length) %}
-                        <input type="text" class="ingredients_remove" name="ingredients[{{ i }}]"  value="{{ recipe.ingredients[i] }}"/>
+                        <input type="text" class="ingredients_remove" name="ingredients[{{ i }}]"  value="{{ recipe.ingredients[i] }}" required/>
                         <label class="label_remove" for="ingredients[{{ i }}]">Ingredient {{ i + 1 }}</label>
                     {% endfor %}
                 </div>
             </div>
             <div class="input-field col s12 m6">
                 <div id="instructions_fields">
-                    <select id="number_of_instructions" name="number_of_instructions" id="number_of_instructions">
+                    <select id="number_of_instructions" name="number_of_instructions" id="number_of_instructions" required>
                         <option value="{{ recipe.number_of_instructions }}" selected>{{ recipe.number_of_instructions }}</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -337,7 +355,7 @@
                     </select>
                     <label for="number_of_instructions">Number of Instructions</label>
                     {% for i in range(recipe.instructions|length) %}
-                        <input type="text" class="instructions_remove" name="instructions[{{ i }}]" id="instructions[{{ i }}]" value="{{ recipe.instructions[i] }}"/>
+                        <input type="text" class="instructions_remove" name="instructions[{{ i }}]" id="instructions[{{ i }}]" value="{{ recipe.instructions[i] }}" required/>
                         <label class="instructions_label_remove" for="instructions[{{ i }}]">Step {{ i + 1 }}</label>
                     {% endfor %}
                 </div>
@@ -346,7 +364,7 @@
         <div class="row">
             <div class="input-field col s12 m6">
                 <!-- User can add their own category if they'd like -->
-                <input type="text" list="categories" name="category" value="{{ recipe.category }}" />
+                <input type="text" list="categories" name="category" value="{{ recipe.category }}" required/>
                     <datalist id="categories">
                         {% for category in categories %}
                           <option>{{ category.category_name }}</option>

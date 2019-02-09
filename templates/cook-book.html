@@ -281,7 +281,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="input-field col s12 m6 l4 push-l2">
+                        <div class="input-field col s12 m6 l4">
                             <select name="allergens">
                                 <option disabled selected multiple>Allergens</option>
                                 {% for allergen in allergens %}
@@ -289,12 +289,23 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="input-field col s12 m6 l4 push-l2">
+                        <div class="input-field col s12 m6 l4">
                             <select name="tags" multiple>
                                 <option disabled selected>Tags</option>
                                 {% for tag in tags %}
                                 <option value="{{ tag.tag_name }}">{{ tag.tag_name }}</option>
                                 {% endfor %}
+                            </select>
+                        </div>
+                        <div class="input-field col s12 m6 l4">
+                            <select name="recipe_time">
+                                <option value="" disabled selected>Recipe Time</option>
+                                <option>0 - 15 Minutes</option>
+                                <option>15 - 30 Minutes</option>
+                                <option>30 - 60 Minutes</option>
+                                <option>1 - 2 Hours</option>
+                                <option>2 - 3 Hours</option>
+                                <option>Over 3 Hours</option>
                             </select>
                         </div>
                     </div>
@@ -326,7 +337,7 @@
                             <div class="col s12 m6 l4">
                                     <div class="card hoverable spaced">
                                         <a href="{{ url_for('view_recipe', recipe_id = recipe._id) }}" target="_blank">
-                                            <div class="card-header">
+                                            <div class="card-header" style="background: #000000 url('{{ recipe.img_src }}') no-repeat center center;">
                                                 <div class="darken-img">
                                                     <h4>{{ recipe.recipe_name }}</h4>
                                                 </div>

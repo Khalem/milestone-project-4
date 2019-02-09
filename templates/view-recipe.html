@@ -36,6 +36,8 @@
         {% else %}
             <h6><i id="up_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-up"></i> {{ recipe.up_down_votes }} <i id="down_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-down"></i></i></h6>
         {% endif %}
+        
+        <h6 style="float: right;"><span class="bold">Total time:</span> {{ recipe.recipe_time }}</h6>
     </div>
         <!-- Buttons -->
         <div class="row center spaced">
@@ -61,7 +63,7 @@
     <div class="row">
         <div class="col s12 m7 l7">
             <!-- Will change this to recipe.img_src when it is added to db -->
-            <img src="{{ url_for('static', filename='images/pancakes.jpg') }}" alt="Recipe Image"/>
+            <img src="{{ recipe.img_src }}" alt="Recipe Image"/>
         </div>
         <div class="col s12 m5 l5">
             <p class="bold">Description:</p>

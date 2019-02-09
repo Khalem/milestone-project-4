@@ -133,11 +133,12 @@ def filter_home():
     category = check_for_input(request.form.get("category", False))
     allergens = check_for_input(request.form.getlist("allergens"))
     tags = check_for_input(request.form.getlist("tags"))
+    time = check_for_input(request.form.get("recipe_time", False))
     
     print("test")
     print(allergens)
     
-    return redirect(url_for("index", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}, sort = "None")) 
+    return redirect(url_for("index", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "recipe_time": time}, sort = "None")) 
 
 
 @app.route("/filter_my_recipes", methods=["POST"])
@@ -152,8 +153,9 @@ def filter_my_recipes():
     category = check_for_input(request.form.get("category", False))
     allergens = check_for_input(request.form.getlist("allergens"))
     tags = check_for_input(request.form.getlist("tags"))
+    time = check_for_input(request.form.get("recipe_time", False))
     
-    return redirect(url_for("my_recipes", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "author": session["username"]}, sort = "None")) 
+    return redirect(url_for("my_recipes", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "recipe_time": time, "author": session["username"]}, sort = "None")) 
 
 @app.route("/filter_cook_book", methods=["POST"])
 def filter_cook_book():
@@ -162,8 +164,9 @@ def filter_cook_book():
     category = check_for_input(request.form.get("category", False))
     allergens = check_for_input(request.form.getlist("allergens"))
     tags = check_for_input(request.form.getlist("tags"))
+    time = check_for_input(request.form.get("recipe_time", False))
     
-    return redirect(url_for("cook_book", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags}, sort = "None"))
+    return redirect(url_for("cook_book", query = {"recipe_name": recipe_name, "country_of_origin": country_of_origin, "category": category, "allergens": allergens, "tags": tags, "recipe_time": time}, sort = "None"))
 
 @app.route("/view_recipe/<recipe_id>")
 def view_recipe(recipe_id):
@@ -267,7 +270,8 @@ def insert_recipe():
     author = session["username"]
     ingredients = []
     instructions = []
-    
+    allergens = request.form.getlist("allergens")
+    tags = request.form.getlist("tags")
     
     # Get category object
     find_category = mongo.db.categories.find({"category_name": request.form["category"]})
@@ -290,11 +294,11 @@ def insert_recipe():
         instructions.append(request.form["instructions[" + str(i) + "]"].lower().capitalize())
         
     recipes.insert_one({"recipe_name": request.form["recipe_name"].lower().title(), "recipe_desc": request.form["recipe_desc"].lower().capitalize(), "ingredients": ingredients,
-                        "instructions": instructions, "country_of_origin": request.form["country_of_origin"].lower().title(), "allergens": [request.form["allergens"]], 
-                        "tags": [request.form["tags"].lower().title()], "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"],
-                        "number_of_ingredients": number_of_ingredients, "number_of_instructions": number_of_instructions})
+                        "instructions": instructions, "country_of_origin": request.form["country_of_origin"].lower().title(), "allergens": allergens, 
+                        "tags": tags, "author": author, "up_down_votes": 0, "views": 0, "category": request.form["category"],
+                        "number_of_ingredients": number_of_ingredients, "number_of_instructions": number_of_instructions, "img_src": request.form["img_src"], "recipe_time": request.form["recipe_time"]})
                         
-    return redirect(url_for("my_recipes", query = None, sort = None))
+    return redirect(url_for("my_recipes", query = "None", sort = "None"))
 
 
 @app.route("/edit_recipe/<recipe_id>")
@@ -359,6 +363,8 @@ def update_recipe(recipe_id):
                         "instructions": instructions,
                         "category": request.form["category"],
                         "tags": tags,
+                        "img_src": request.form["img_src"],
+                        "recipe_time": request.form["recipe_time"],
                         "author": session["username"],
                         "views": views,
                         "up_down_votes": upvotes

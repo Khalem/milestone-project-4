@@ -61,6 +61,7 @@ img{
     margin-left: auto;
     margin-right: auto;
 }
+
 /* --  /Misc Styles  -- */
 
 /* -- Landing -- */
@@ -129,7 +130,6 @@ nav h6 {
     width: 100%;
     height: 125px;
     margin: 0;
-    background: #000000 url("https://images.pexels.com/photos/724216/pexels-photo-724216.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260") no-repeat center center;
     position: relative;
 }
 
@@ -285,6 +285,21 @@ footer span{
 }
 
 /* -- /Input Styles -- */
+
+
+/*-- FIX FOR MATERIALIZE BUG WITH REQUIRED SELECTS --*/
+.input-field select {
+    display: block;
+    position: absolute;
+    width: 0;
+    pointer-events: none;
+    height: 0;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+/*-- /FIX FOR MATERIALIZE BUG WITH REQUIRED SELECTS --*/
+
 
 /* -- Responsive -- */
 @media only screen and (min-width: 767px){
