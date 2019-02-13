@@ -46,3 +46,12 @@ $(document).ready(function(){
     $('.carousel').carousel();
   });
  
+ //Sidenav
+ $(document).ready(function(){
+    $('.sidenav').sidenav();
+  });
+  
+  //Collapsible for Mobile
+  $(document).ready(function(){
+    $('.collapsible').collapsible();
+  });

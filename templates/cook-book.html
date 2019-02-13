@@ -1,25 +1,12 @@
 {% extends "base.html" %}
 {% block title %}<title>Cook Book</title>{% endblock %}
 {% block content %}
-<div class="row">
-    <nav>
-        <h6>Easy Recipes</h6>
-        <ul>
-            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
-            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
-            <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
-        </ul>
-    </nav>
-</div>
-    
     <div class="container">
         <h1 class="heading-spaced center-align">My Cook Book</h1>
     
         {% if total > 0 %}
             <!-- User won't get the option to search unless the user has recipes -->
-            <div class="row">
-                <form action="{{ url_for('filter_cook_book') }}" method="POST" class="col s12">
+            <div class="collapsible-body"><span><div class="row"><form action="{{ url_for('filter_cook_book') }}" method="POST" class="col s12">
                     <div class="row">
                         <!-- Country select, A LOT of values, you've been warned -->
                         <div class="input-field col s12 m6 l4">
@@ -264,7 +251,7 @@
                             <option value="Yugoslavia">Yugoslavia</option>
                             <option value="Zambia">Zambia</option>
                             <option value="Zimbabwe">Zimbabwe</option>
-                </select>
+                    </select>
                             <label>Country of Origin</label>
                         </div>
                         <div class="input-field col s12 m6 l4">
@@ -279,11 +266,9 @@
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="input-field col s12 m6 l4">
-                            <select name="allergens">
-                                <option disabled selected multiple>Allergens</option>
+                            <select name="allergens" multiple>
+                                <option disabled selected>Allergens</option>
                                 {% for allergen in allergens %}
                                     <option value="{{ allergen.allergen_name }}">{{ allergen.allergen_name }}</option>
                                 {% endfor %}
@@ -314,15 +299,13 @@
                             <button type="submit" class="btn green-btn">Submit</button>
                         </div>
                     </div>
-                </form>
-            </div>
-            
+                </form></div></span></div>
             {% if count > 0 %}
                 {{ pagination.info }}
                 
                 <!-- Allow user to choose how they want the recipes oredered, then refresh with ordered recipes. -->
                         <!-- Dropdown Trigger -->
-                        <a class='dropdown-trigger btn blue-btn hoverable' href='#' data-target='sort_by'>Sort By</a>
+                        <a class='dropdown-trigger btn blue-btn' href='#' data-target='sort_by'>Sort By</a>
                         
                         <!-- Dropdown Structure -->
                         <ul id='sort_by' class='dropdown-content'>
@@ -350,7 +333,7 @@
                                             <p><i class="far fa-thumbs-up"></i> {{ recipe.up_down_votes }} <i class="far fa-thumbs-down"></i></i></p>
                                             <!-- When clicked, user will delete recipe. Will add modal to confirm deletion with materialize -->
                                             <div class="row center">
-                                                <a data-target="remove_modal" href="" class="modal-trigger"><button class="btn red-btn z-depth-3">Remove From Cook Book</button></a>
+                                                <a data-target="remove_modal" href="" class="modal-trigger"><button class="btn red-btn">Remove From Cook Book</button></a>
                                             </div>
                                         </div>
                                     </div>
@@ -366,7 +349,7 @@
                                             <a href="{{ url_for('remove_cook_book', recipe_id = recipe._id) }}"><button class="btn red-btn spaced">Yes Remove This</button></a>
                                         </div>
                                         <div class="col s12 m6">
-                                            <a href="#!" class="modal-close waves-effect btn green-btn spaced">No</a>
+                                            <a href="#!" class="modal-close waves-effect btn green-btn spaced">Cancel</a>
                                         </div>
                                     </div>
                                 </div>  

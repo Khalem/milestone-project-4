@@ -1,18 +1,6 @@
 {% extends "base.html" %}
 {% block title %}<title>Edit {{ recipe.recipe_name }}</title>{% endblock %}
 {% block content %}
-<div class="row">
-    <nav>
-        <h6>Easy Recipes</h6>
-        <ul>
-            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
-            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
-            <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
-        </ul>
-    </nav>
-</div>
-    
 <div class="container">
     <h1 class="heading-spaced center-align">Edit {{ recipe.recipe_name }}</h1>
     

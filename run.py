@@ -64,15 +64,11 @@ def index(query = None, sort = None):
     elif sort == "worst_rated":
         recipes.sort([("up_down_votes", 1)])
     
-    logged_in = False
     search = False
     q = request.args.get('q')
     if q:
         search = True
     
-    if "username" in session:
-        logged_in = True
-
     # Get the amount of results
     count = recipes.count()
     
@@ -80,7 +76,7 @@ def index(query = None, sort = None):
     page = request.args.get(get_page_parameter(), type=int, default=1)
     pagination = Pagination(page=page, per_page= 6, total=count, search=search, record_name="recipes")
     
-    return render_template("index.html", logged_in = logged_in, recipes = get_records(recipes, 6, request.args.get(get_page_parameter(), type=int, default=1)),
+    return render_template("index.html", recipes = get_records(recipes, 6, request.args.get(get_page_parameter(), type=int, default=1)),
                             count = count, pagination = pagination, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
@@ -175,11 +171,9 @@ def view_recipe(recipe_id):
     """
     
     # Check if user is logged in - must pass through so the option to add to cook book will be hidden from users who aren't logged in, also check if user has recipe in cook book.
-    logged_in = False
     is_in = False
     up_down_voted = ""
     if "username" in session:
-        logged_in = True
         user = mongo.db.user.find_one({"username": session["username"]})
     
         if recipe_id in user["up_voted"]:
@@ -201,7 +195,7 @@ def view_recipe(recipe_id):
     
     mongo.db.recipes.update({"_id": ObjectId(recipe_id)}, {"$set": {"views": new_views}})
     
-    return render_template("view-recipe.html", recipe = recipe, logged_in = logged_in, is_in = is_in, up_down_voted = up_down_voted)
+    return render_template("view-recipe.html", recipe = recipe, is_in = is_in, up_down_voted = up_down_voted)
 
 
 @app.route("/my_recipes/<query>/<sort>")
@@ -214,7 +208,7 @@ def my_recipes(query = None, sort = None):
     tags = mongo.db.tags.find()
     allergens = mongo.db.allergens.find()
     
-    if query == None:
+    if query == "None":
         # If value of query doesn't change, return all reslults as user has just visited the site.
         recipes = mongo.db.recipes.find({"author": session["username"]})
     else:

@@ -1,27 +1,13 @@
 {% extends "base.html" %}
 {% block title %}<title>{{ recipe.recipe_name }}</title>{% endblock %}
 {% block content %}
-<nav>
-    <h6>Easy Recipes</h6>
-    <ul>
-        {% if logged_in == True %}
-            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
-            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
-            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
-            <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
-        {% else %}
-            <a  data-target="modal1" href="" class="modal-trigger"><li>Log In</li></a>
-        {% endif %}
-    </ul>
-</nav>
-
 
 <div class="container">
     <h1 class="center-align heading-spaced">{{ recipe.recipe_name }}</h1>
     <div class="row">
         <h6><i class="fas fa-eye"></i> {{ recipe.views }}</h6>
         <!-- If user is logge in, they will have the option to up or down vote the recipe -->
-        {% if logged_in == True %}
+        {% if "username" in session %}
             <!-- If user has upvoted, thumbs up will be blue -->
             {% if up_down_voted == "Up" %}
                 <h6><a href="{{ url_for('up_voted', recipe_id = recipe._id) }}"><i id="up_vote" class="far fa-thumbs-up blue-thumb"></i></a> {{ recipe.up_down_votes }} <a href="{{ url_for('down_voted', recipe_id = recipe._id) }}"><i id="down_vote" class="far fa-thumbs-down"></a></i></i></h6>
@@ -37,7 +23,7 @@
             <h6><i id="up_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-up"></i> {{ recipe.up_down_votes }} <i id="down_vote" onclick="M.toast({html: 'You need to sign up or login to vote!'})" class="far fa-thumbs-down"></i></i></h6>
         {% endif %}
         
-        <h6 style="float: right;"><span class="bold">Total time:</span> {{ recipe.recipe_time }}</h6>
+        <h6 id="recipe-time"><span class="bold">Total time:</span> {{ recipe.recipe_time }}</h6>
     </div>
         <!-- Buttons -->
         <div class="row center spaced">
@@ -76,6 +62,16 @@
                     <li>{{ x }}</li>
                 {% endfor %}
             </ul>
+            <div class="hide-on-med-and-up">
+                {% if recipe.tags|length > 0 %}
+                    <p class="bold">Tags:</p>
+                    <ul>
+                        {% for x in recipe.tags %}
+                            <li>{{ x }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
         </div>
     </div>
     <!-- Ingredients and Steps -->

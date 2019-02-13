@@ -15,6 +15,33 @@
     <link rel="stylesheet" href="{{ url_for('static', filename = 'css/style.css') }}" type="text/css" />
 </head>
 <body>
+    <nav>
+        <div class="nav-wrapper">
+          <a href="{{ url_for('index', query = 'None', sort = 'None') }}"><h6>Easy Recipes</h6></a>
+          <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
+          <ul class="right hide-on-med-and-down">
+            {% if "username" in session %}
+                <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
+                <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
+                <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
+                <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
+            {% else %}
+                <a  data-target="modal1" href="" class="modal-trigger"><li>Log In</li></a>
+            {% endif %}
+          </ul>
+        </div>
+    </nav>
+    
+      <ul class="sidenav" id="mobile-demo">
+        {% if logged_in == True %}
+            <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
+            <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
+            <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>
+            <a href="{{ url_for('create_recipe') }}"><li>Create Recipe</li></a>
+        {% else %}
+            <a  data-target="modal1" href="" class="modal-trigger"><li>Log In</li></a>
+        {% endif %}
+      </ul>
     {% block content %} {% endblock %}
     
     <!-- Modal -->
@@ -24,11 +51,11 @@
             <h4 class="bold center-align">Sign Up!</h4>
             <form action="{{ url_for('register') }}" method="POST">
                 <div class="input-field">
-                    <input id="username" type="text" class="validate" name="username">
+                    <input id="username" type="text" class="validate" name="username" required>
                     <label for="username">Username</label>
                 </div>
                 <div class="input-field">
-                    <input id="password" type="text" class="validate" name="password">
+                    <input id="password" type="text" class="validate" name="password" required>
                     <label for="password">Password</label>
                 </div>
                 <div class="row center">
@@ -40,11 +67,11 @@
                 <h4 class="bold center-align">Already have an account? Log in!</h4>
                 <form action="{{ url_for('log_in') }}" method="POST">
                     <div class="input-field">
-                        <input id="login_username" type="text" class="validate" name="username">
+                        <input id="login_username" type="text" class="validate" name="username" required>
                         <label for="login_username">Username</label>
                     </div>
                     <div class="input-field">
-                        <input id="login_password" type="text" class="validate" name="password">
+                        <input id="login_password" type="text" class="validate" name="password" required>
                         <label for="login_password">Password</label>
                     </div>
                     <div class="row center">
