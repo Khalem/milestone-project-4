@@ -237,9 +237,9 @@ def my_recipes(query = None, sort = None):
     
     # Pagination using flask-paginate
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    pagination = Pagination(page=page, per_page= 6, total=count, search=search, record_name="recipes")
     
-    return render_template("my-recipes.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)),
+    return render_template("my-recipes.html", recipes = get_records(recipes, 6, request.args.get(get_page_parameter(), type=int, default=1)),
                             count = count, pagination = pagination, total = total, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
@@ -435,9 +435,9 @@ def cook_book(query = None, sort = None):
     
     # Pagination using flask-paginate
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    pagination = Pagination(page=page, per_page= 2, total=count, search=search, record_name="recipes")
+    pagination = Pagination(page=page, per_page= 6, total=count, search=search, record_name="recipes")
     
-    return render_template("cook-book.html", recipes = get_records(recipes, 2, request.args.get(get_page_parameter(), type=int, default=1)),
+    return render_template("cook-book.html", recipes = get_records(recipes, 6, request.args.get(get_page_parameter(), type=int, default=1)),
                             count = count, total = total, pagination = pagination, sort = sort, query = query, categories = categories, tags = tags, allergens = allergens)
 
 
@@ -453,7 +453,7 @@ def remove_cook_book(recipe_id):
                              }
                          })
     
-    return redirect(url_for("cook_book"))
+    return redirect(url_for("cook_book", query = "None", sort = "None"))
     
 
 @app.route("/up_voted/<recipe_id>")
@@ -557,6 +557,14 @@ def down_voted(recipe_id):
                                         )
     
     return redirect(url_for("view_recipe", recipe_id = recipe_id))
+    
+    
+@app.errorhandler(404)
+def page_not_found(e):
+    """
+        This function will handle 404 errors
+    """
+    return render_template("404.html"), 404
 
 if __name__ == "__main__":
     app.secret_key = "$my$secret$key"

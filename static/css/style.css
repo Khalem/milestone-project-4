@@ -64,6 +64,9 @@ img{
 #recipe-time{
     text-align: center;
 }
+h3 a{
+    color: #66F7FC;
+}
 /* --  /Misc Styles  -- */
 
 /* -- Landing -- */
@@ -269,6 +272,11 @@ footer h6 a{
 footer span{
     color: #FF094C;
 }
+/* This will keep the footer at the bottom of the page if user has no recipes / cook book */
+.content-height{
+    min-height: 77.5vh;
+}
+
 /* -- /Footer --*/
 
 

@@ -17,7 +17,7 @@
 <body>
     <nav>
         <div class="nav-wrapper">
-          <a href="{{ url_for('index', query = 'None', sort = 'None') }}"><h6>Easy Recipes</h6></a>
+          <a href="{{ url_for('index') }}"><h6>Easy Recipes</h6></a>
           <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="fas fa-bars"></i></a>
           <ul class="right hide-on-med-and-down">
             {% if "username" in session %}
@@ -55,7 +55,7 @@
                     <label for="username">Username</label>
                 </div>
                 <div class="input-field">
-                    <input id="password" type="text" class="validate" name="password" required>
+                    <input id="password" type="password" class="validate" name="password" required>
                     <label for="password">Password</label>
                 </div>
                 <div class="row center">
@@ -71,7 +71,7 @@
                         <label for="login_username">Username</label>
                     </div>
                     <div class="input-field">
-                        <input id="login_password" type="text" class="validate" name="password" required>
+                        <input id="login_password" type="password" class="validate" name="password" required>
                         <label for="login_password">Password</label>
                     </div>
                     <div class="row center">

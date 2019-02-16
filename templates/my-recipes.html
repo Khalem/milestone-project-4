@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}<title>My Recipes</title>{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container content-height">
         <h1 class="heading-spaced center-align">My Recipes</h1>
         {% if total > 0 %}
             <!-- User won't get the option to search unless the user has recipes -->
@@ -264,7 +264,7 @@
                             <select name="category">
                                 <option disabled selected>Category</option>
                                 {% for category in categories %}
-                                    <option value="category.category_name">{{ category.category_name }}</option>
+                                    <option value="{{ category.category_name }}">{{ category.category_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -308,14 +308,14 @@
                 {{ pagination.info }}
                 <!-- Allow user to choose how they want the recipes oredered, then refresh with ordered recipes. -->
                 <!-- Dropdown Trigger -->
-                <a class='dropdown-trigger btn blue-btn' href='#' data-target='sort_by'>Sort By</a>
+                <a class='dropdown-trigger btn blue-btn' href='#' data-target='sort_by'>Sort By <i class="fas fa-sort-down"></i></a>
                     
                 <!-- Dropdown Structure -->
                 <ul id="sort_by" class='dropdown-content'>
-                    <li><a href="{{ url_for('index', query = query, sort = 'most_views') }}">Highest Views</a></li>
-                    <li><a href="{{ url_for('index', query = query, sort = 'best_rated') }}">Best Rated</a></li>
-                    <li><a href="{{ url_for('index', query = query, sort = 'least_views') }}">Least Views</a></li>
-                    <li><a href="{{ url_for('index', query = query, sort = 'worst_rated') }}">Lowest Rated</a></li>
+                    <li><a href="{{ url_for('my_recipes', query = query, sort = 'most_views') }}">Highest Views</a></li>
+                    <li><a href="{{ url_for('my_recipes', query = query, sort = 'best_rated') }}">Best Rated</a></li>
+                    <li><a href="{{ url_for('my_recipes', query = query, sort = 'least_views') }}">Least Views</a></li>
+                    <li><a href="{{ url_for('my_recipes', query = query, sort = 'worst_rated') }}">Lowest Rated</a></li>
                 </ul>
                 <a href="{{ url_for('create_recipe') }}"><button class="btn green-btn">Add New</button></a>
                 
@@ -361,12 +361,12 @@
                 </div>
                 {{ pagination.links }}
             {% else %}
-                <h2>Oops! Looks like there were no results for that search!</h2>
+                <h2 class="center-align bold">Oops! Looks like there were no results for that search!</h2>
             {% endif %}
             
             <!-- If user has no recipes, this will prompt them to make one. -->
         {% else %}
-            <h3>You have no recipes. <a href="{{ url_for('create_recipe') }}">Would you like to create one?</a></h3>
+            <h3 class="center-align bold">You have no recipes. <a href="{{ url_for('create_recipe') }}">Would you like to create one?</a></h3>
         {% endif %}
     </div>
     
