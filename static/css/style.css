@@ -228,7 +228,7 @@ nav h6 {
 
 .modal-content button,
 .landing-content button {
-    width: 220px;
+    max-width: 220px;
 }
 
 /* -- /Modal Styles --*/
@@ -346,6 +346,19 @@ footer span{
         width: 100%;
         max-width: 500px;
         height: auto;
+    }
+}
+
+@media only screen and (max-height: 412px){
+    header{
+        background: #F5F5F5 !important;
+    }
+    .lighten-landing{
+        background-color: rgba(0,0,0,0);
+    }
+    .heading-spaced{
+        padding-top: 10%;
+        padding-bottom: 50px;
     }
 }
 

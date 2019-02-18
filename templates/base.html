@@ -33,7 +33,7 @@
     </nav>
     
       <ul class="sidenav" id="mobile-demo">
-        {% if logged_in == True %}
+        {% if "username" in session %}
             <a href="{{ url_for('log_out') }}"><li>Log Out</li></a>
             <a href="{{ url_for('my_recipes', query = 'None', sort = 'None') }}"><li>My Recipes</li></a>
             <a href="{{ url_for('cook_book', query = 'None', sort = 'None') }}"><li>Cook Book</li></a>

@@ -6,6 +6,8 @@ from bson.objectid import ObjectId
 import ast
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRETKEY", "randomstring123")
+
 app.config["MONGO_DBNAME"] = "milestone-project-4"
 app.config["MONGO_URI"] = "mongodb://admin:helloworld123@ds161894.mlab.com:61894/milestone-project-4"
 
@@ -567,7 +569,7 @@ def page_not_found(e):
     return render_template("404.html"), 404
 
 if __name__ == "__main__":
-    app.secret_key = "$my$secret$key"
-    app.run(host=os.environ.get("IP"),
-            port=int(os.environ.get("PORT")),
-            debug=True)
+    app.secret_key = "SECRETKEY"
+    app.run(host=os.environ.get("IP", "0.0.0.0"),
+            port=int(os.environ.get("PORT", "5000")),
+            debug=False)
