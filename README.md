@@ -48,6 +48,16 @@ I have left both a .xd and .pdf file of my wireframe in my [cloud9 workspace](ht
   * [PyMongo](https://flask-pymongo.readthedocs.io/en/latest/) - used to handle the MongoDB queries in Python.
 * [mLab(MongoDB)](https://mlab.com/) - used to host the database.
 
+## Database
+I created my database with MongoDB. The structure of the database works as followed, there are 6 collections: user, recipes, categories, allergens and tags. I put categories, allergens and tags into their own collection
+as it would be easy to add a new value without actually having to go into the code.
+
+The **user** collection will hold all users' usernames, passwords, liked/disliked recipes and recipes that they added to their cook book.
+The **recipes** collection will hold all recipes. Recipes include name, description, country of origin, allergens, category, tags, instructions, recipe time and ingredients.
+
+Unfortunately, with the small size of 16mb on MongoDB, having actual images on the database just isn't feasible. Instead, I opted to get the user to input the link to the image. I understand that this isn't a good practise,
+but for this project it was necessary.
+
 ## Testing
 For testing I tested the website with automated tests and by manual tests.
 
