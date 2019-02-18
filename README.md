@@ -63,9 +63,13 @@ For my automated tests, I tested 2 different functions inside my main python cod
 For my manual tests, I tested all features to find any bugs, both logged in and as a guest.
 
 **Forms:** I tested the sign up, log in, edit and create recipe forms. For all tests I tested putting in an empty value to check it wouldn't submit. I also tested that the form would work as inteded - it did.
+
 **Search Bar:** to test the search bar, I went onto all pages that had it, then began testing each indivdual search parameter. Everything worked as intended.
+
 **Up/Down Vote:** I tested the up vote system by firstly trying to vote when I wasn't logged in. As I wanted, a tip would appear to encourage the user to log in/ sign up. Testing it logged in worked fine.
+
 **Action Buttons:** I tested action buttons (edit, add, delte) by simply just clicking on them and seeing if they worked, they did.
+
 **Pagination:** To test pagination, I changed the code the return 1 recipe per page to see if it worked. It did, I changed it back to 6 after testing.
 
 **Responsiveness:**
@@ -73,9 +77,21 @@ For my manual tests, I tested all features to find any bugs, both logged in and 
 While testing the responsiveness of the site, I noticed that on mobile landscapes, the padding of the landing caused it to overlap with some of the content. I fixed this by adding an extra media query. I tested 
 the site by using chrome developer tools and [Responsinator](https://www.responsinator.com/). Just to be safe I tested it on my phone as well, I was pleased with the results.
 
+## Changes I Would Like to Make
+While I am proud of my work, there are a few changes that I would have liked to make but would have taken too much time this far into development. My biggest concern was the way I filtered through search results. Because I used flask-paginate,
+I had to pass the entire query into the site address as a variable. This was necessary because if I used a __*request.method == "POST"*__ in the backend, I would lose any filtering the user had done once they would click on page 2/etc. I understand
+that this wasn't the correct way of doing it, and in the future I will be sure to create my own pagination to avoid this problem.
+
 ## Deployment
+I deployed the site onto **Heroku**. I did this by first creating a Procfile and a requirements.txt file. At first the requirements didn't include PyMongo because I used pip3 freeze, rather than pip freeze. 
+I then created a secret key by revealing the config vars in settings. Once everything was in order, I pushed to Heroku and everything worked out fine. You can view the deployed site [here!](https://khalem-milestone-4.herokuapp.com/)
+
+To run this code locally, I use Visual Studio 2017/ Port 5000.
+
 
 ## Credits
 **Country Select:** To save a lot of time, I used some code provided by Github user asha23, you can view the source [here!](https://gist.github.com/asha23/6112572)
+
 **Landing Photo:** I got the landing photo from [here!](https://www.pexels.com/photo/spinach-chicken-pomegranate-salad-5938/)
+
 **Recipe Photos:** For recipe placeholder photos, I used [Pexels](https://www.pexels.com/), this site gives you a license to use all their photos for both commercial and personal use.
